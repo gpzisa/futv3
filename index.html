@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumo ao Estrelato - Super Futebol RPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-decorations">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="app-header">
+            <h1 id="app-title" data-i18n="appTitle">Rumo ao Estrelato</h1>
+            <div class="language-dropdown" id="languageDropdown">
+                <button class="dropdown-trigger" id="langDropdownTrigger" title="Mudar Idioma">
+                    <svg class="global-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span class="lang-name-long">Português</span>
+                    <span class="lang-name-short">PT</span>
+                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="dropdown-menu" id="langDropdownMenu">
+                    <button class="dropdown-item active" data-lang="pt">
+                        <span class="lang-badge">PT</span>
+                        <span>Português</span>
+                    </button>
+                    <button class="dropdown-item" data-lang="en">
+                        <span class="lang-badge">EN</span>
+                        <span>English</span>
+                    </button>
+                    <button class="dropdown-item" data-lang="es">
+                        <span class="lang-badge">ES</span>
+                        <span>Español</span>
+                    </button>
+                    <button class="dropdown-item" data-lang="ja">
+                        <span class="lang-badge">JA</span>
+                        <span>日本語</span>
+                    </button>
+                    <button class="dropdown-item" data-lang="zh">
+                        <span class="lang-badge">ZH</span>
+                        <span>简体中文</span>
+                    </button>
+                </div>
+            </div>
+            <p id="app-subtitle" class="app-subtitle">Etapa 1: Gire a roleta para descobrir em qual continente você irá nascer!</p>
+        </header>
+
+        <div class="game-layout">
+            <!-- Left Column: The Roulette Wheel -->
+            <div class="wheel-section">
+                <div class="roulette-wrapper">
+                    <!-- Outer glowing ring -->
+                    <div class="roulette-glow"></div>
+                    
+                    <!-- The Pointer -->
+                    <div class="roulette-pointer">
+                        <svg viewBox="0 0 30 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 40L30 10C30 4.47715 25.5228 0 20 0H10C4.47715 0 0 4.47715 0 10L15 40Z" fill="url(#pointer-grad)"/>
+                            <defs>
+                                <linearGradient id="pointer-grad" x1="15" y1="0" x2="15" y2="40" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#ffffff" />
+                                    <stop offset="50%" stop-color="#cbd5e1" />
+                                    <stop offset="100%" stop-color="#94a3b8" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <!-- The Wheel Canvas -->
+                    <div class="wheel-outer">
+                        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                    </div>
+
+                    <!-- Center Spin Button -->
+                    <button id="spinBtn" class="spin-button">
+                        <span>GIRAR</span>
+                    </button>
+                </div>
+                
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span id="statusText">Aguardando giro do continente...</span>
+                </div>
+
+                <!-- Mobile Quick Stats Panel (Visible only on Mobile) -->
+                <div class="mobile-quick-stats-container">
+                    <div class="mobile-quick-stats-track">
+                        <div class="quick-stat-card" id="m-box-origin">
+                            <span class="m-stat-icon">📍</span>
+                            <span class="m-stat-label">Origem</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-height">
+                            <span class="m-stat-icon">📏</span>
+                            <span class="m-stat-label">Altura</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-age">
+                            <span class="m-stat-icon">🎂</span>
+                            <span class="m-stat-label">Estreia</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-position">
+                            <span class="m-stat-icon">⚽</span>
+                            <span class="m-stat-label">Posição</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-speed">
+                            <span class="m-stat-icon">⚡</span>
+                            <span class="m-stat-label">VEL/REA</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-finishing">
+                            <span class="m-stat-icon">🎯</span>
+                            <span class="m-stat-label">FIN/IMP</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-dribbling">
+                            <span class="m-stat-icon">🌀</span>
+                            <span class="m-stat-label">DRI/ELS</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-passing">
+                            <span class="m-stat-icon">📐</span>
+                            <span class="m-stat-label">Passe</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-strength">
+                            <span class="m-stat-icon">💪</span>
+                            <span class="m-stat-label">Força</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-defending">
+                            <span class="m-stat-icon">🛡️</span>
+                            <span class="m-stat-label">Defesa</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-seasons">
+                            <span class="m-stat-icon">📅</span>
+                            <span class="m-stat-label">Seasons</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                        <div class="quick-stat-card" id="m-box-clubs">
+                            <span class="m-stat-icon">🏢</span>
+                            <span class="m-stat-label">Clubes</span>
+                            <span class="m-stat-val">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results Sidebar -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Sua Nova Vida</h3>
+                
+                <!-- Navegação por Abas -->
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="tab-stats" data-i18n="tabStats">📋 Atributos</button>
+                    <button class="tab-btn" data-tab="tab-timeline" data-i18n="tabTimeline">📈 Carreira</button>
+                    <button class="tab-btn" data-tab="tab-references" data-i18n="tabReferences">📊 Tabelas</button>
+                </div>
+                
+                <!-- Aba 1: Estatísticas e Atributos -->
+                <div class="tab-content active" id="tab-stats">
+                    <div class="result-boxes-container">
+                        <!-- Box 1: Continent -->
+                        <div class="result-box" id="box-continent">
+                            <div class="box-header">
+                                <span class="box-icon">🌍</span>
+                                <span class="box-label">Continente</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 2: Country -->
+                        <div class="result-box" id="box-country">
+                            <div class="box-header">
+                                <span class="box-icon">📍</span>
+                                <span class="box-label">País Natal</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 3: Height -->
+                        <div class="result-box" id="box-height">
+                            <div class="box-header">
+                                <span class="box-icon">📏</span>
+                                <span class="box-label">Altura</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 4: Pro Age -->
+                        <div class="result-box" id="box-age">
+                            <div class="box-header">
+                                <span class="box-icon">🎂</span>
+                                <span class="box-label">Estreou Pro</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 5: Football Position -->
+                        <div class="result-box" id="box-position">
+                            <div class="box-header">
+                                <span class="box-icon">⚽</span>
+                                <span class="box-label">Posição</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 6: Speed -->
+                        <div class="result-box" id="box-speed">
+                            <div class="box-header">
+                                <span class="box-icon">⚡</span>
+                                <span class="box-label">Velocidade</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 7: Finishing -->
+                        <div class="result-box" id="box-finishing">
+                            <div class="box-header">
+                                <span class="box-icon">🎯</span>
+                                <span class="box-label">Finalização</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 8: Dribbling -->
+                        <div class="result-box" id="box-dribbling">
+                            <div class="box-header">
+                                <span class="box-icon">🌀</span>
+                                <span class="box-label">Drible</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 9: Passing -->
+                        <div class="result-box" id="box-passing">
+                            <div class="box-header">
+                                <span class="box-icon">📐</span>
+                                <span class="box-label">Passe</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 10: Strength -->
+                        <div class="result-box" id="box-strength">
+                            <div class="box-header">
+                                <span class="box-icon">💪</span>
+                                <span class="box-label">Força</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 11: Defending -->
+                        <div class="result-box" id="box-defending">
+                            <div class="box-header">
+                                <span class="box-icon">🛡️</span>
+                                <span class="box-label">Defesa</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 12: Seasons played -->
+                        <div class="result-box" id="box-seasons">
+                            <div class="box-header">
+                                <span class="box-icon">📅</span>
+                                <span class="box-label">Temporadas</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+
+                        <!-- Box 13: Clubs Career -->
+                        <div class="result-box" id="box-clubs">
+                            <div class="box-header">
+                                <span class="box-icon">🏢</span>
+                                <span class="box-label">Clubes</span>
+                            </div>
+                            <div class="box-body">
+                                <div class="box-placeholder">Pendente</div>
+                                <div class="box-value hidden">-</div>
+                            </div>
+                            <div class="box-glow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba 2: Linha do Tempo da Carreira -->
+                <div class="tab-content hidden" id="tab-timeline">
+                    <div class="timeline-section" id="timelineSection" style="margin-top: 0;">
+                        <h4 class="timeline-section-title">Linha do Tempo da Carreira</h4>
+                        <div class="timeline-container" id="timelineContainer">
+                            <div class="timeline-placeholder">Aguardando início da carreira...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba 3: Tabelas de Referência -->
+                <div class="tab-content hidden" id="tab-references">
+                    <div id="no-table-placeholder" class="timeline-placeholder" style="padding: 2.5rem 1rem;">
+                        Nenhuma tabela ativa no momento. As tabelas de raridades e temporadas aparecerão aqui automaticamente durante os seus respectivos sorteios.
+                    </div>
+
+                    <!-- Unified 10-level Rarity Table -->
+                    <div class="speed-table-section hidden" id="speedTableSection" style="margin-top: 0;">
+                        <h4 class="table-title">Tabela de Raridades de Atributos</h4>
+                        <table class="speed-rarity-table">
+                            <thead>
+                                <tr>
+                                    <th>Nível</th>
+                                    <th>Raridade</th>
+                                    <th>Chance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="row-speed-0" class="rarity-common">
+                                    <td>1/10 - Extremamente Ruim</td>
+                                    <td>Comum</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr id="row-speed-1" class="rarity-common">
+                                    <td>2/10 - Muito Ruim</td>
+                                    <td>Comum</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr id="row-speed-2" class="rarity-uncommon">
+                                    <td>3/10 - Ruim</td>
+                                    <td>Incomum</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr id="row-speed-3" class="rarity-uncommon">
+                                    <td>4/10 - Mediano</td>
+                                    <td>Incomum</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr id="row-speed-4" class="rarity-medium">
+                                    <td>5/10 - Bom</td>
+                                    <td>Mediano</td>
+                                    <td>15%</td>
+                                </tr>
+                                <tr id="row-speed-5" class="rarity-rare">
+                                    <td>6/10 - Muito Bom</td>
+                                    <td>Raro</td>
+                                    <td>10%</td>
+                                </tr>
+                                <tr id="row-speed-6" class="rarity-epic">
+                                    <td>7/10 - Excelente</td>
+                                    <td>Épico</td>
+                                    <td>8%</td>
+                                </tr>
+                                <tr id="row-speed-7" class="rarity-legendary">
+                                    <td>8/10 - Classe Mundial</td>
+                                    <td>Lendário</td>
+                                    <td>4%</td>
+                                </tr>
+                                <tr id="row-speed-8" class="rarity-mythic">
+                                    <td>9/10 - Lendário</td>
+                                    <td>Mítico</td>
+                                    <td>2.5%</td>
+                                </tr>
+                                <tr id="row-speed-9" class="rarity-divine">
+                                    <td>10/10 - Rank GOAT</td>
+                                    <td>Divino</td>
+                                    <td>1.5%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Seasons Table Section (shown dynamically during Step 11) -->
+                    <div class="speed-table-section hidden" id="seasonsTableSection" style="margin-top: 0;">
+                        <h4 class="table-title">Jogou Quantas Temporadas</h4>
+                        <table class="speed-rarity-table">
+                            <thead>
+                                <tr>
+                                    <th>Temporadas</th>
+                                    <th>Classificação da Carreira</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="row-season-0">
+                                    <td>10 Temporadas</td>
+                                    <td>Carreira Curta & Foco Intenso</td>
+                                </tr>
+                                <tr id="row-season-1">
+                                    <td>11 Temporadas</td>
+                                    <td>Carreira Concisa</td>
+                                </tr>
+                                <tr id="row-season-2">
+                                    <td>12 Temporadas</td>
+                                    <td>Carreira Equilibrada</td>
+                                </tr>
+                                <tr id="row-season-3">
+                                    <td>13 Temporadas</td>
+                                    <td>Carreira Madura</td>
+                                </tr>
+                                <tr id="row-season-4">
+                                    <td>14 Temporadas</td>
+                                    <td>Carreira Duradoura</td>
+                                </tr>
+                                <tr id="row-season-5">
+                                    <td>15 Temporadas</td>
+                                    <td>Veterano de Respeito</td>
+                                </tr>
+                                <tr id="row-season-6">
+                                    <td>16 Temporadas</td>
+                                    <td>Carreira Consagrada</td>
+                                </tr>
+                                <tr id="row-season-7">
+                                    <td>17 Temporadas</td>
+                                    <td>Longeva & Vitoriosa</td>
+                                </tr>
+                                <tr id="row-season-8">
+                                    <td>18 Temporadas</td>
+                                    <td>Lenda dos Gramados</td>
+                                </tr>
+                                <tr id="row-season-9">
+                                    <td>19 Temporadas</td>
+                                    <td>Carreira Histórica</td>
+                                </tr>
+                                <tr id="row-season-10">
+                                    <td>20 Temporadas</td>
+                                    <td>Longevidade Lendária (GOAT)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <button id="resetJourneyBtn" class="btn-secondary" disabled style="margin-top: 0.4rem;" data-i18n="resetJourneyBtn">
+                    Reiniciar Jornada
+                </button>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <p id="footer-text">Rumo ao Estrelato © 2026. O mais completo simulador RPG de carreira futebolística.</p>
+        </footer>
+    </div>
+
+    <!-- Final Result Modal -->
+    <div id="resultModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-badge" data-i18n="modalBadge">Biografia Declarada</span>
+            </div>
+            <div class="modal-body">
+                <p class="modal-lead" data-i18n="modalLead">Parabéns! Sua carreira lendária foi traçada:</p>
+                
+                <div class="final-presentation">
+                    <!-- Column for the FUT Player Card -->
+                    <div class="card-column">
+                        <div id="fifaCardContainer"></div>
+                    </div>
+                    
+                    <!-- Column for the detailed stats and biography -->
+                    <div class="info-column">
+                        <h4 class="section-title" id="sectionTitleSummary" data-i18n="sectionTitleSummary">📋 Atributos & Biografia</h4>
+                        <!-- Expanded 18-item Summary Grid -->
+                        <div class="summary-card">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Continente</span>
+                                    <span id="summaryContinent" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">País Natal</span>
+                                    <span id="summaryCountry" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Altura</span>
+                                    <span id="summaryHeight" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Estreou Pro</span>
+                                    <span id="summaryAge" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Posição</span>
+                                    <span id="summaryPosition" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Velocidade</span>
+                                    <span id="summarySpeed" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Finalização</span>
+                                    <span id="summaryFinishing" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Drible</span>
+                                    <span id="summaryDribbling" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Passe</span>
+                                    <span id="summaryPassing" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Força</span>
+                                    <span id="summaryStrength" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Defesa</span>
+                                    <span id="summaryDefending" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Temporadas</span>
+                                    <span id="summarySeasons" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Clubes</span>
+                                    <span id="summaryClubs" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Seleção</span>
+                                    <span id="summarySelection" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Copa do Mundo</span>
+                                    <span id="summaryWorldCup" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Continental (Sel.)</span>
+                                    <span id="summaryContinentalSelection" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Gols & Assistências</span>
+                                    <span id="summaryStats" class="summary-val">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Bolas de Ouro</span>
+                                    <span id="summaryBallonDor" class="summary-val">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="story-box">
+                            <p id="destinyStory">Carregando sua história de destino...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Column for the clubs, selection and trophies -->
+                    <div class="trophies-column">
+                        <h4 class="section-title" id="sectionTitleTrophies" data-i18n="sectionTitleTrophies">🏆 Clubes, Seleção & Títulos</h4>
+                        <div id="modalTrophiesGallery"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; width: 100%; margin-top: 1rem;">
+                <button id="viewJourneyBtn" class="btn-primary" style="flex: 1; margin: 0;" data-i18n="viewJourneyBtn">Ver Trajetória</button>
+                <button id="closeModalBtn" class="btn-secondary" style="flex: 1; margin: 0; padding: 0.85rem 1.8rem; border-radius: 10px;" data-i18n="closeModalBtn">Nova Carreira</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+    <script src="translations.js?v=1.0.3"></script>
+    <script src="app.js?v=1.0.3"></script>
+</body>
+</html>
