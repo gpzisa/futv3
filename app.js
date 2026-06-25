@@ -1,4 +1,4 @@
-﻿// 0. Internationalization (i18n) Setup
+// 0. Internationalization (i18n) Setup
 let currentLang = localStorage.getItem("rumo_estrelato_lang") || "pt";
 
 function translate(key, defaultVal = "") {
@@ -2126,14 +2126,22 @@ function generateModalTrophiesHtml() {
         const activeLeagueObj = leagues.find(l => l.name === rec.league) || leagues[1];
         html += `
             <div class="modal-trophy-card">
-                <div class="modal-trophy-card-header">
-                    <span class="modal-trophy-club" style="color: ${activeLeagueObj.color}">${getClubCrestEmoji(rec.team.name)} ${rec.team.name}</span>
-                    <span class="modal-trophy-duration">${rec.years} ${rec.years === 1 ? (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'year' : 'ano') : (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'years' : 'anos')}</span>
+                <!-- Coluna da Esquerda: Info do Clube -->
+                <div class="modal-trophy-info-col">
+                    <div class="modal-trophy-club-row">
+                        <span class="modal-trophy-club" style="color: ${activeLeagueObj.color}">${getClubCrestEmoji(rec.team.name)} ${rec.team.name}</span>
+                    </div>
+                    <div class="modal-trophy-league">${translateTerm("continents", rec.league) || rec.league}</div>
+                    <div class="modal-trophy-duration-badge">${rec.years} ${rec.years === 1 ? (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'year' : 'ano') : (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'years' : 'anos')}</div>
                 </div>
-                <div style="font-size: 0.68rem; color: var(--color-text-secondary); margin-bottom: 5px; text-align: left; padding-left: 0.4rem;">${translateTerm("continents", rec.league) || rec.league}</div>
-                <ul class="modal-trophy-ul">
-                    ${trophiesList.join("")}
-                </ul>
+                <!-- Divisória -->
+                <div class="modal-trophy-divider"></div>
+                <!-- Coluna da Direita: Títulos -->
+                <div class="modal-trophy-titles-col">
+                    <ul class="modal-trophy-ul">
+                        ${trophiesList.join("")}
+                    </ul>
+                </div>
             </div>
         `;
     });
@@ -2160,13 +2168,22 @@ function generateModalTrophiesHtml() {
 
         html += `
             <div class="modal-trophy-card selection-card">
-                <div class="modal-trophy-card-header">
-                    <span class="modal-trophy-club" style="color: #60a5fa">🇺🇳 ${currentLang === 'pt' ? `Seleção de ${selectedCountry.name}` : currentLang === 'en' ? `${translateTerm("countries", selectedCountry.name)} National Team` : currentLang === 'es' ? `Selección de ${translateTerm("countries", selectedCountry.name)}` : currentLang === 'ja' ? `${translateTerm("countries", selectedCountry.name)}代表` : `${translateTerm("countries", selectedCountry.name)}国家队`} ${getCountryFlag(selectedCountry.name)}</span>
-                    <span class="modal-trophy-duration">${durationText}</span>
+                <!-- Coluna da Esquerda: Info da Seleção -->
+                <div class="modal-trophy-info-col">
+                    <div class="modal-trophy-club-row">
+                        <span class="modal-trophy-club" style="color: #60a5fa">🇺🇳 ${selectionTitle}</span>
+                    </div>
+                    <div class="modal-trophy-league">${getCountryFlag(selectedCountry.name)}</div>
+                    <div class="modal-trophy-duration-badge">${durationText}</div>
                 </div>
-                <ul class="modal-trophy-ul">
-                    ${selectionTrophies.join("")}
-                </ul>
+                <!-- Divisória -->
+                <div class="modal-trophy-divider"></div>
+                <!-- Coluna da Direita: Títulos -->
+                <div class="modal-trophy-titles-col">
+                    <ul class="modal-trophy-ul">
+                        ${selectionTrophies.join("")}
+                    </ul>
+                </div>
             </div>
         `;
     }
@@ -2177,13 +2194,22 @@ function generateModalTrophiesHtml() {
         const indDuration = currentLang === 'pt' ? 'Consagração' : currentLang === 'en' ? 'Consecration' : currentLang === 'es' ? 'Consagración' : currentLang === 'ja' ? '栄誉' : '殿堂荣誉';
         html += `
             <div class="modal-trophy-card individual-card">
-                <div class="modal-trophy-card-header">
-                    <span class="modal-trophy-club" style="color: #fbbf24">⭐ ${indTitle}</span>
-                    <span class="modal-trophy-duration">${indDuration}</span>
+                <!-- Coluna da Esquerda: Info dos Prêmios -->
+                <div class="modal-trophy-info-col">
+                    <div class="modal-trophy-club-row">
+                        <span class="modal-trophy-club" style="color: #fbbf24">⭐ ${indTitle}</span>
+                    </div>
+                    <div class="modal-trophy-league">🏆 Ballon d'Or</div>
+                    <div class="modal-trophy-duration-badge">${indDuration}</div>
                 </div>
-                <ul class="modal-trophy-ul">
-                    <li><span class="trophy-icon">⭐</span> <strong>${bolaDeOuroCount}x</strong> ${tBdor}</li>
-                </ul>
+                <!-- Divisória -->
+                <div class="modal-trophy-divider"></div>
+                <!-- Coluna da Direita: Conquistas -->
+                <div class="modal-trophy-titles-col">
+                    <ul class="modal-trophy-ul">
+                        <li><span class="trophy-icon">⭐</span> <strong>${bolaDeOuroCount}x</strong> ${tBdor}</li>
+                    </ul>
+                </div>
             </div>
         `;
     }
@@ -2209,25 +2235,25 @@ function showFinalJourney() {
         trophiesGallery.innerHTML = generateModalTrophiesHtml();
     }
 
-    summaryContinent.innerText = translateTerm("continents", selectedContinent);
-    summaryCountry.innerText = translateTerm("countries", selectedCountry.name);
-    summaryHeight.innerText = getTranslatedHeightValue(selectedHeight.name);
-    summaryAge.innerText = getTranslatedAgeValue(selectedAge.name);
-    summaryPosition.innerText = translateTerm("positions", selectedPosition.name);
+    if (summaryContinent) summaryContinent.innerText = translateTerm("continents", selectedContinent);
+    if (summaryCountry) summaryCountry.innerText = translateTerm("countries", selectedCountry.name);
+    if (summaryHeight) summaryHeight.innerText = getTranslatedHeightValue(selectedHeight.name);
+    if (summaryAge) summaryAge.innerText = getTranslatedAgeValue(selectedAge.name);
+    if (summaryPosition) summaryPosition.innerText = translateTerm("positions", selectedPosition.name);
     
     // Função local para formatar e traduzir atributos do summary grid
     const formatAttr = (attrObj) => {
         const parts = attrObj.name.split(" - ");
         return parts[0] + " - " + translateTerm("attributes", parts[1]);
     };
-    summarySpeed.innerText = formatAttr(selectedSpeed);
-    summaryFinishing.innerText = formatAttr(selectedFinishing);
-    summaryDribbling.innerText = formatAttr(selectedDribbling);
-    summaryPassing.innerText = formatAttr(selectedPassing);
-    summaryStrength.innerText = formatAttr(selectedStrength);
-    summaryDefending.innerText = formatAttr(selectedDefending);
-    summarySeasons.innerText = getTranslatedSeasonsValue(selectedSeasons.name);
-    summaryClubs.innerText = getTranslatedClubsValue(selectedClubs.name);
+    if (summarySpeed) summarySpeed.innerText = formatAttr(selectedSpeed);
+    if (summaryFinishing) summaryFinishing.innerText = formatAttr(selectedFinishing);
+    if (summaryDribbling) summaryDribbling.innerText = formatAttr(selectedDribbling);
+    if (summaryPassing) summaryPassing.innerText = formatAttr(selectedPassing);
+    if (summaryStrength) summaryStrength.innerText = formatAttr(selectedStrength);
+    if (summaryDefending) summaryDefending.innerText = formatAttr(selectedDefending);
+    if (summarySeasons) summarySeasons.innerText = getTranslatedSeasonsValue(selectedSeasons.name);
+    if (summaryClubs) summaryClubs.innerText = getTranslatedClubsValue(selectedClubs.name);
 
     // Fetch and populate the 5 new summary items
     const summarySelection = document.getElementById("summarySelection");
@@ -2484,7 +2510,9 @@ function showFinalJourney() {
 
     const story = `${clubStory}${internationalStory}${statsStory}${awardsStory}${retirementText}${epilogueStory}`;
     
-    destinyStory.innerHTML = story;
+    if (destinyStory) {
+        destinyStory.innerHTML = story;
+    }
 
     // FUT Card Generation
     const cardContainer = document.getElementById("fifaCardContainer");
@@ -2541,10 +2569,8 @@ function showFinalJourney() {
         const placeholderName = currentLang === 'pt' ? 'SEU NOME' : currentLang === 'en' ? 'YOUR NAME' : currentLang === 'es' ? 'TU NOMBRE' : currentLang === 'ja' ? 'あなたの名前' : '你的名字';
         const insiraName = currentLang === 'pt' ? 'INSIRA SEU NOME' : currentLang === 'en' ? 'ENTER YOUR NAME' : currentLang === 'es' ? 'INGRESA TU NOMBRE' : currentLang === 'ja' ? '名前を入力してください' : '输入你的名字';
 
-        let displayCardName = playerCardName;
-        if (displayCardName === "INSIRA SEU NOME") {
-            displayCardName = placeholderName;
-        }
+        // O card do FIFA exibe o texto de nome de forma estática e limpa (como as cartas oficiais)
+        const displayCardName = playerCardName === "INSIRA SEU NOME" ? placeholderName : playerCardName;
         
         cardContainer.innerHTML = `
             <div class="fut-card-container ${rarityClass}">
@@ -2563,8 +2589,8 @@ function showFinalJourney() {
                         </div>
                     </div>
                     
-                    <!-- Player Name (Editable Input) -->
-                    <input type="text" class="fut-card-name-input" id="futCardNameInput" value="${displayCardName}" placeholder="${placeholderName}" maxlength="14" autocomplete="off" spellcheck="false" />
+                    <!-- Player Name (Static Text - Clean & Professional FUT aesthetic) -->
+                    <div class="fut-card-name-text" id="futCardNameText">${displayCardName}</div>
                     
                     <!-- 6 Stats Columns -->
                     <div class="fut-card-stats">
@@ -2609,23 +2635,93 @@ function showFinalJourney() {
             </div>
         `;
         
-        // Listen to edits on the player card name input
-        const nameInput = document.getElementById("futCardNameInput");
-        if (nameInput) {
-            nameInput.addEventListener("input", (e) => {
-                playerCardName = e.target.value.toUpperCase();
-            });
-            nameInput.addEventListener("focus", (e) => {
-                if (e.target.value === placeholderName || e.target.value === "INSIRA SEU NOME" || e.target.value === insiraName) {
-                    e.target.value = "";
+        // Garante o downscaling perfeito do card do FIFA no mobile via JS (evita falhas de cache/especificidade do CSS)
+        const futCardEl = cardContainer.querySelector(".fut-card-container");
+        if (futCardEl && window.innerWidth <= 768) {
+            futCardEl.style.setProperty("transform", "scale(0.76)", "important");
+            futCardEl.style.setProperty("transform-origin", "center center", "important");
+        }
+        
+        // ----------------------------------------------------
+        // POPULAÇÃO E SINCRONIZAÇÃO DO DASHBOARD DE PRINT
+        // ----------------------------------------------------
+        const dbOvrBadge = document.getElementById("dashboardOvrBadge");
+        const dbPlayerPosition = document.getElementById("dashboardPlayerPosition");
+        const dbPlayerOrigin = document.getElementById("dashboardPlayerOrigin");
+        const dbHeightAge = document.getElementById("summaryHeightAge");
+        
+        const summaryCareer = document.getElementById("summaryCareer");
+        const summaryClubTrophies = document.getElementById("summaryClubTrophies");
+        const summaryNationalTrophies = document.getElementById("summaryNationalTrophies");
+        
+        if (dbOvrBadge) dbOvrBadge.innerText = `OVR ${ovr}`;
+        if (dbPlayerPosition) dbPlayerPosition.innerText = translateTerm("positions", selectedPosition.name);
+        if (dbPlayerOrigin) {
+            dbPlayerOrigin.innerText = `${flag} ${translateTerm("countries", selectedCountry.name)}`;
+        }
+        if (dbHeightAge) {
+            const hVal = getTranslatedHeightValue(selectedHeight.name);
+            const aVal = getTranslatedAgeValue(selectedAge.name);
+            dbHeightAge.innerText = `${hVal} / ${aVal}`;
+        }
+        
+        // 1. Carreira (Temporadas / Clubes)
+        if (summaryCareer) {
+            const transSeasons = getTranslatedSeasonsValue(selectedSeasons.name);
+            const transClubs = getTranslatedClubsValue(selectedClubs.name);
+            summaryCareer.innerText = `${transSeasons} / ${transClubs}`;
+        }
+        
+        // 2. Títulos por Clubes consolidados
+        if (summaryClubTrophies) {
+            const labelTitle = currentLang === 'ja' ? '個のタイトル' : currentLang === 'zh' ? '个冠军' : totalClubTrophies === 1 ? (currentLang === 'en' ? 'Trophy' : 'Título') : (currentLang === 'en' ? 'Trophies' : 'Títulos');
+            summaryClubTrophies.innerText = totalClubTrophies > 0 ? `${totalClubTrophies} ${labelTitle} 👑` : `0 ${labelTitle} 👑`;
+            summaryClubTrophies.style.color = totalClubTrophies > 0 ? "#fef08a" : "#cbd5e1";
+        }
+        
+        // 3. Títulos por Seleção consolidados
+        if (summaryNationalTrophies) {
+            let nationalTrophiesParts = [];
+            if (ganhouCopaMundo && titulosCopaMundoCount > 0) {
+                const labelWc = currentLang === 'pt' ? 'Copa' : currentLang === 'en' ? 'Cup' : currentLang === 'es' ? 'Copa' : currentLang === 'ja' ? 'W杯' : '世界杯';
+                nationalTrophiesParts.push(`${titulosCopaMundoCount}x ${labelWc} 🏆`);
+            }
+            if (ganhouContinentalSelecoes && titulosContinentalSelecoesCount > 0) {
+                const contSelectionName = getContinentalSelectionTournamentName();
+                const shortContName = contSelectionName.split(" ")[0]; // ex: Copa, Euro, AFC
+                nationalTrophiesParts.push(`${titulosContinentalSelecoesCount}x ${shortContName} 🏆`);
+            }
+            
+            let nationalText = "0x 🏆";
+            if (nationalTrophiesParts.length > 0) {
+                nationalText = nationalTrophiesParts.join(" / ");
+            } else if (convocandoSelecao) {
+                nationalText = currentLang === 'pt' ? "Convocado 🌟" : currentLang === 'en' ? "Called Up 🌟" : currentLang === 'es' ? "Convocado 🌟" : currentLang === 'ja' ? "招集 🌟" : "获得入选 🌟";
+            } else {
+                nationalText = currentLang === 'pt' ? "Não convocado ❌" : currentLang === 'en' ? "Not Called ❌" : currentLang === 'es' ? "No convocado ❌" : currentLang === 'ja' ? "招集なし ❌" : "未获得入选 ❌";
+            }
+            
+            summaryNationalTrophies.innerText = nationalText;
+            summaryNationalTrophies.style.color = (ganhouCopaMundo || ganhouContinentalSelecoes) ? "#fef08a" : convocandoSelecao ? "#86efac" : "#cbd5e1";
+        }
+
+        // 4. Configuração e Sincronização do Input Plano de Nome no Dashboard
+        const dbNameInput = document.getElementById("dashboardPlayerNameInput");
+        if (dbNameInput) {
+            dbNameInput.value = playerCardName === "INSIRA SEU NOME" ? "" : playerCardName;
+            dbNameInput.placeholder = insiraName;
+            
+            // Usar oninput para sobrescrever listeners anteriores e evitar acúmulos na modal
+            dbNameInput.oninput = (e) => {
+                const val = e.target.value.toUpperCase();
+                playerCardName = val || "INSIRA SEU NOME";
+                
+                // Sincroniza o card do FIFA (texto estático) em tempo real
+                const cardNameText = document.getElementById("futCardNameText");
+                if (cardNameText) {
+                    cardNameText.innerText = val || placeholderName;
                 }
-            });
-            nameInput.addEventListener("blur", (e) => {
-                if (e.target.value.trim() === "") {
-                    e.target.value = placeholderName;
-                    playerCardName = "INSIRA SEU NOME";
-                }
-            });
+            };
         }
     }
  
@@ -4678,6 +4774,22 @@ function updateTableVisibility() {
 // INTERNATIONALIZATION (i18n) AUXILIARY FUNCTIONS
 // ==========================================
 
+function getTranslatedAttributeName(attrName, isGoleiro, lang) {
+    const attrTranslations = {
+        "Velocidade": { pt: "Velocidade", en: "Speed", es: "Velocidad", ja: "スピード", zh: "速度" },
+        "Finalização": { pt: "Finalização", en: "Finishing", es: "Finalización", ja: "シュート精度", zh: "射门精度" },
+        "Drible": { pt: "Drible", en: "Dribbling", es: "Dribble", ja: "ドリブル", zh: "盘带" },
+        "Tempo de Reação": { pt: "Tempo de Reação", en: "Reaction Time", es: "Tiempo de Reacción", ja: "反応速度", zh: "反应时间" },
+        "Impulsão": { pt: "Impulsão", en: "Jumping", es: "Impulso", ja: "ジャンプ力", zh: "弹跳" },
+        "Elasticidade": { pt: "Elasticidade", en: "Diving", es: "Diving", ja: "ダイビング", zh: "鱼跃" }
+    };
+    const entry = attrTranslations[attrName];
+    if (entry) {
+        return entry[lang] || entry["pt"] || attrName;
+    }
+    return attrName;
+}
+
 function getTranslatedCountryDesc(countryName, lang) {
     if (lang === "pt") {
         const country = countryData[selectedContinent].find(c => c.name === countryName);
@@ -5527,3 +5639,97 @@ applyLanguage();
 
 // Initialize
 document.getElementById("box-continent").classList.add("active-step");
+
+// ==========================================
+// MOCK / SIMULAÇÃO DE CARREIRA PARA TESTES VISUAIS
+// ==========================================
+function simulateLegendaryCareer() {
+    selectedContinent = "América do Sul";
+    selectedCountry = { name: "Brasil" };
+    selectedHeight = { name: "1.85 m - Altura Ideal", desc: "Equilíbrio perfeito entre força e agilidade." };
+    selectedAge = { name: "17 anos - Prodígio", desc: "Estreia precoce indicando talento extraordinário." };
+    selectedPosition = { name: "Meia-Armador" };
+    
+    selectedSpeed = { name: "9/10 - Classe Mundial" };
+    selectedFinishing = { name: "9/10 - Classe Mundial" };
+    selectedDribbling = { name: "10/10 - Rank GOAT" };
+    selectedPassing = { name: "10/10 - Rank GOAT" };
+    selectedStrength = { name: "8/10 - Classe Mundial" };
+    selectedDefending = { name: "5/10 - Bom" };
+    
+    selectedSeasons = { name: "18 Temporadas" };
+    selectedClubs = { name: "4 Clubes" };
+    
+    // Histórico de carreira fictício de superestrela
+    careerHistory = [
+        {
+            team: { name: "Flamengo" },
+            league: "América do Sul",
+            years: 3,
+            wonLeague: true, leagueTitles: 2,
+            wonCup: true, cupTitles: 1,
+            wonContinental: true, continentalTitles: 1,
+            wonIntercontinental: false, intercontinentalTitles: 0,
+            wonWorldClubCup: false, worldClubCupTitles: 0,
+            improvedAttributes: true, numImproved: 2
+        },
+        {
+            team: { name: "Real Madrid" },
+            league: "Europa",
+            years: 8,
+            wonLeague: true, leagueTitles: 5,
+            wonCup: true, cupTitles: 3,
+            wonContinental: true, continentalTitles: 3,
+            wonIntercontinental: true, intercontinentalTitles: 2,
+            wonWorldClubCup: true, worldClubCupTitles: 2,
+            improvedAttributes: true, numImproved: 4
+        },
+        {
+            team: { name: "Milan" },
+            league: "Europa",
+            years: 5,
+            wonLeague: true, leagueTitles: 2,
+            wonCup: true, cupTitles: 1,
+            wonContinental: true, continentalTitles: 1,
+            wonIntercontinental: false, intercontinentalTitles: 0,
+            wonWorldClubCup: false, worldClubCupTitles: 0,
+            improvedAttributes: true, numImproved: 1
+        },
+        {
+            team: { name: "Boca Juniors" },
+            league: "América do Sul",
+            years: 2,
+            wonLeague: true, leagueTitles: 1,
+            wonCup: true, cupTitles: 1,
+            wonContinental: false, continentalTitles: 0,
+            wonIntercontinental: false, intercontinentalTitles: 0,
+            wonWorldClubCup: false, worldClubCupTitles: 0,
+            improvedAttributes: false, numImproved: 0
+        }
+    ];
+    
+    convocandoSelecao = true;
+    jogouCopaMundo = true;
+    ganhouCopaMundo = true;
+    quantidadeCopasDisputadas = 4;
+    titulosCopaMundoCount = 2;
+    ganhouContinentalSelecoes = true;
+    titulosContinentalSelecoesCount = 2;
+    ganhouBolaDeOuro = true;
+    bolaDeOuroCount = 5;
+    
+    selectedCareerGoals = 845;
+    selectedCareerAssists = 392;
+    selectedCareerCleanSheets = 0;
+    
+    playerCardName = "TAVVU99";
+    
+    showFinalJourney();
+}
+
+// Inicia o mock automaticamente se a URL contiver '?testModal=true'
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('testModal')) {
+    console.log("Modo de Teste do Modal Final ativo!");
+    simulateLegendaryCareer();
+}

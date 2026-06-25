@@ -103,7 +103,9 @@ const translations = {
         posMEI: "MEI",
         posPE: "PE",
         posPD: "PD",
-        posATA: "ATA"
+        posATA: "ATA",
+        dashboardBadge: "Resumo da Carreira",
+        lblHeightAge: "Altura & Estreia"
     },
     en: {
         appTitle: "Road to Stardom",
@@ -194,7 +196,9 @@ const translations = {
         posMEI: "CAM",
         posPE: "LW",
         posPD: "RW",
-        posATA: "ST"
+        posATA: "ST",
+        dashboardBadge: "Career Summary",
+        lblHeightAge: "Height & Debut"
     },
     es: {
         appTitle: "Rumbo al Estrellato",
@@ -285,7 +289,9 @@ const translations = {
         posMEI: "MCO",
         posPE: "EI",
         posPD: "ED",
-        posATA: "DC"
+        posATA: "DC",
+        dashboardBadge: "Resumen de la Carrera",
+        lblHeightAge: "Altura y Debut"
     },
     ja: {
         appTitle: "栄光への道",
@@ -376,7 +382,9 @@ const translations = {
         posMEI: "OMF",
         posPE: "LWG",
         posPD: "RWG",
-        posATA: "CF"
+        posATA: "CF",
+        dashboardBadge: "キャリアの概要",
+        lblHeightAge: "身長とデビュー年齢"
     },
     zh: {
         appTitle: "走向巨星",
@@ -467,7 +475,9 @@ const translations = {
         posMEI: "CAM",
         posPE: "LW",
         posPD: "RW",
-        posATA: "ST"
+        posATA: "ST",
+        dashboardBadge: "职业生涯总结",
+        lblHeightAge: "身高与首秀年龄"
     }
 };
 

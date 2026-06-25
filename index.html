@@ -2,6 +2,23 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.position = 'fixed';
+        errorDiv.style.top = '0';
+        errorDiv.style.left = '0';
+        errorDiv.style.width = '100%';
+        errorDiv.style.backgroundColor = 'red';
+        errorDiv.style.color = 'white';
+        errorDiv.style.zIndex = '999999';
+        errorDiv.style.padding = '10px';
+        errorDiv.style.fontFamily = 'monospace';
+        errorDiv.style.fontSize = '14px';
+        errorDiv.innerHTML = '<strong>JS ERROR:</strong> ' + message + ' at ' + source + ':' + lineno + ':' + colno + (error ? '<br>' + error.stack : '');
+        document.body.appendChild(errorDiv);
+    };
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rumo ao Estrelato - Super Futebol RPG</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -496,6 +513,7 @@
 
         <footer class="app-footer">
             <p id="footer-text">Rumo ao Estrelato © 2026. O mais completo simulador RPG de carreira futebolística.</p>
+            <p class="credits-tag" style="font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.4rem; letter-spacing: 2px; font-weight: 600;">MADE BY @TAVVU99 WITH ANTIGRAVITY</p>
         </footer>
     </div>
 
@@ -508,103 +526,101 @@
             <div class="modal-body">
                 <p class="modal-lead" data-i18n="modalLead">Parabéns! Sua carreira lendária foi traçada:</p>
                 
-                <div class="final-presentation">
-                    <!-- Column for the FUT Player Card -->
+                <!-- PÔSTER DE COMPARTILHAMENTO UNIFICADO (PRINT INTEGRADO) -->
+                <div class="share-section" id="finalShareSection">
+                    <!-- Coluna do Card do FIFA -->
                     <div class="card-column">
                         <div id="fifaCardContainer"></div>
                     </div>
                     
-                    <!-- Column for the detailed stats and biography -->
-                    <div class="info-column">
-                        <h4 class="section-title" id="sectionTitleSummary" data-i18n="sectionTitleSummary">📋 Atributos & Biografia</h4>
-                        <!-- Expanded 18-item Summary Grid -->
-                        <div class="summary-card">
-                            <div class="summary-grid">
-                                <div class="summary-item">
-                                    <span class="summary-label">Continente</span>
-                                    <span id="summaryContinent" class="summary-val">-</span>
+                    <!-- Coluna do Dashboard Consolidado de Estatísticas (Ultra-Compacto) -->
+                    <div class="dashboard-column">
+                        <div class="career-dashboard-card">
+                            <div class="dashboard-header">
+                                <div class="dashboard-badge-row">
+                                    <span class="dashboard-badge" data-i18n="dashboardBadge">Resumo da Carreira</span>
+                                    <span class="dashboard-ovr-badge" id="dashboardOvrBadge">OVR --</span>
                                 </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">País Natal</span>
-                                    <span id="summaryCountry" class="summary-val">-</span>
+                                <!-- Input plano para edição de nome amigável e acessível, com indicador de lápis -->
+                                <div class="dashboard-name-edit-container">
+                                    <input type="text" class="dashboard-name-input" id="dashboardPlayerNameInput" value="" placeholder="DIGITE SEU NOME" maxlength="14" autocomplete="off" spellcheck="false" />
+                                    <span class="edit-icon-indicator" title="Clique para editar seu nome">✏️</span>
                                 </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Altura</span>
-                                    <span id="summaryHeight" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Estreou Pro</span>
-                                    <span id="summaryAge" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Posição</span>
-                                    <span id="summaryPosition" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Velocidade</span>
-                                    <span id="summarySpeed" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Finalização</span>
-                                    <span id="summaryFinishing" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Drible</span>
-                                    <span id="summaryDribbling" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Passe</span>
-                                    <span id="summaryPassing" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Força</span>
-                                    <span id="summaryStrength" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Defesa</span>
-                                    <span id="summaryDefending" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Temporadas</span>
-                                    <span id="summarySeasons" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Clubes</span>
-                                    <span id="summaryClubs" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Seleção</span>
-                                    <span id="summarySelection" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Copa do Mundo</span>
-                                    <span id="summaryWorldCup" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Continental (Sel.)</span>
-                                    <span id="summaryContinentalSelection" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Gols & Assistências</span>
-                                    <span id="summaryStats" class="summary-val">-</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-label">Bolas de Ouro</span>
-                                    <span id="summaryBallonDor" class="summary-val">-</span>
+                                <div class="dashboard-player-meta">
+                                    <span id="dashboardPlayerPosition">-</span>
+                                    <span class="dashboard-meta-divider">•</span>
+                                    <span id="dashboardPlayerOrigin">-</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="story-box">
-                            <p id="destinyStory">Carregando sua história de destino...</p>
+                            
+                            <!-- Grid com 6 Estatísticas de Prestígio Consolidadas da Carreira -->
+                            <div class="dashboard-grid">
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="tabTimeline">Carreira</span>
+                                    <span id="summaryCareer" class="dashboard-val">-</span>
+                                </div>
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="summaryStats">Gols & Assistências</span>
+                                    <span id="summaryStats" class="dashboard-val">-</span>
+                                </div>
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="summaryBallonDor">Bolas de Ouro</span>
+                                    <span id="summaryBallonDor" class="dashboard-val">-</span>
+                                </div>
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="sectionTitleTrophies">Títulos por Clubes</span>
+                                    <span id="summaryClubTrophies" class="dashboard-val">-</span>
+                                </div>
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="summarySelection">Títulos por Seleção</span>
+                                    <span id="summaryNationalTrophies" class="dashboard-val">-</span>
+                                </div>
+                                <div class="dashboard-item">
+                                    <span class="dashboard-label" data-i18n="lblHeightAge">Altura & Estreia</span>
+                                    <span id="summaryHeightAge" class="dashboard-val">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Rodapé do Poster para Branding e Créditos -->
+                            <div class="dashboard-footer-branding">
+                                <span class="branding-logo">⚡ RUMO AO ESTRELATO</span>
+                                <span class="branding-author">MADE BY @TAVVU99 WITH ANTIGRAVITY</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Column for the clubs, selection and trophies -->
-                    <div class="trophies-column">
-                        <h4 class="section-title" id="sectionTitleTrophies" data-i18n="sectionTitleTrophies">🏆 Clubes, Seleção & Títulos</h4>
+                </div>
+                
+                <!-- SEÇÃO DETALHADA DE CLUBES E TÍTULOS (ROLÁVEL E AMPLA) -->
+                <div class="details-section">
+                    <!-- Coluna da Galeria Detalhada de Títulos (Expandida para ocupar a largura total) -->
+                    <div class="trophies-column" style="width: 100%;">
+                        <h4 class="section-title">
+                            <span class="section-icon">🏆</span>
+                            <span data-i18n="sectionTitleTrophies">Clubes, Seleção & Títulos</span>
+                        </h4>
                         <div id="modalTrophiesGallery"></div>
                     </div>
+                </div>
+
+                <!-- Elementos legados ocultos para retrocompatibilidade total com as atribuições JS originais -->
+                <div class="legacy-hidden-fields" style="display: none;">
+                    <p id="destinyStory"></p>
+                    <span id="summaryContinent"></span>
+                    <span id="summaryCountry"></span>
+                    <span id="summaryHeight"></span>
+                    <span id="summaryAge"></span>
+                    <span id="summaryPosition"></span>
+                    <span id="summarySpeed"></span>
+                    <span id="summaryFinishing"></span>
+                    <span id="summaryDribbling"></span>
+                    <span id="summaryPassing"></span>
+                    <span id="summaryStrength"></span>
+                    <span id="summaryDefending"></span>
+                    <span id="summarySeasons"></span>
+                    <span id="summaryClubs"></span>
+                    <span id="summarySelection"></span>
+                    <span id="summaryWorldCup"></span>
+                    <span id="summaryContinentalSelection"></span>
                 </div>
             </div>
             <div class="modal-footer" style="display: flex; gap: 1rem; width: 100%; margin-top: 1rem;">
