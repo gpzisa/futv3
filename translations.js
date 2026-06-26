@@ -105,7 +105,9 @@ const translations = {
         posPD: "PD",
         posATA: "ATA",
         dashboardBadge: "Resumo da Carreira",
-        lblHeightAge: "Altura & Estreia"
+        lblHeightAge: "Altura & Estreia",
+        lblMarketValue: "Valor de Mercado (Auge)",
+        lblRetirement: "Aposentadoria"
     },
     en: {
         appTitle: "Road to Stardom",
@@ -198,7 +200,9 @@ const translations = {
         posPD: "RW",
         posATA: "ST",
         dashboardBadge: "Career Summary",
-        lblHeightAge: "Height & Debut"
+        lblHeightAge: "Height & Debut",
+        lblMarketValue: "Market Value (Peak)",
+        lblRetirement: "Retirement"
     },
     es: {
         appTitle: "Rumbo al Estrellato",
@@ -291,7 +295,9 @@ const translations = {
         posPD: "ED",
         posATA: "DC",
         dashboardBadge: "Resumen de la Carrera",
-        lblHeightAge: "Altura y Debut"
+        lblHeightAge: "Altura y Debut",
+        lblMarketValue: "Valor de Mercado (Auge)",
+        lblRetirement: "Retiro"
     },
     ja: {
         appTitle: "栄光への道",
@@ -384,7 +390,9 @@ const translations = {
         posPD: "RWG",
         posATA: "CF",
         dashboardBadge: "キャリアの概要",
-        lblHeightAge: "身長とデビュー年齢"
+        lblHeightAge: "身長とデビュー年齢",
+        lblMarketValue: "市場価値 (最高)",
+        lblRetirement: "引退理由"
     },
     zh: {
         appTitle: "走向巨星",
@@ -477,7 +485,9 @@ const translations = {
         posPD: "RW",
         posATA: "ST",
         dashboardBadge: "职业生涯总结",
-        lblHeightAge: "身高与首秀年龄"
+        lblHeightAge: "身高与首秀年龄",
+        lblMarketValue: "市场价值 (峰值)",
+        lblRetirement: "退役原因"
     }
 };
 

@@ -407,6 +407,7 @@ const leagues = [
     { name: "🇮🇹 Serie A (ITA)", color: "#2d144c" },
     { name: "🇩🇪 Bundesliga (ALE)", color: "#4c2d14" },
     { name: "🇫🇷 Ligue 1 (FRA)", color: "#14404c" },
+    { name: "🇵🇹 Liga Portugal (POR)", color: "#0d5c3a" },
     { name: "🇺🇸 MLS (EUA)", color: "#144c3d" },
     { name: "🇯🇵 J1 League (JPN)", color: "#3a0c23" },
     { name: "🇦🇷 Liga Profesional (ARG)", color: "#0c303a" },
@@ -417,6 +418,13 @@ const leagues = [
 
 // League Team Database
 const teamDatabase = {
+    "🇵🇹 Liga Portugal (POR)": [
+        { name: "Benfica", desc: "os encarnados de Lisboa, gigantes da Luz conhecidos por sua mística gloriosa e enorme força europeia" },
+        { name: "Porto", desc: "os dragões do norte, famosos pelo 'espírito de dragão' indomável, garra competitiva e grandes conquistas mundiais" },
+        { name: "Sporting CP", desc: "os leões de Alvalade, reconhecidos por sua lendária academia reveladora e futebol ultra-ofensivo moderno" },
+        { name: "Braga", desc: "os guerreiros do Minho, clube em grande crescimento constante que disputa finais e manda jogos em um estádio na rocha" },
+        { name: "Vitória de Guimarães", desc: "os conquistadores, empurrados por uma das torcidas mais vibrantes e fanáticas do país no berço da nação" }
+    ],
     "🇧🇷 Brasileirão (BRA)": [
         { name: "Flamengo", desc: "o clube de maior torcida do país, jogando no icônico Maracanã sob uma atmosfera de pressão e paixão absurdas" },
         { name: "Palmeiras", desc: "um dos times mais vencedores da era moderna, caracterizado por sua disciplina tática de ferro e consistência competitiva" },
@@ -667,6 +675,12 @@ let remainingSeasons = 0;
 let totalClubsCount = 0;
 let careerHistory = [];
 
+// New Market Value and Age variables
+let selectedMarketValue = null;
+let peakMarketValueRaw = 0;
+let peakMarketValueFormatted = "€0";
+let currentPlayerAge = 18;
+
 // Realistic Calendar, Dual Cup & Retirement Variables
 let currentCalendarYear = 2026;
 let globalTopTierWinningYears = [];
@@ -868,7 +882,7 @@ function getCurrentItems() {
             case 8: return getPositionAttributeTiers("passing");
             case 9: return getPositionAttributeTiers("strength");
             case 10: return getPositionAttributeTiers("defending");
-            case 11: return proSeasons;
+            case 11: return getProSeasonsOptions();
             case 12: return proClubs;
             default: return [];
         }
@@ -893,6 +907,7 @@ function getCurrentItems() {
             case 14: return getNumberOptions(intercontinentalEligibleCount);
             case 15: return getSimNaoOptions(getWorldClubCupWinChance());
             case 16: return getNumberOptions(cwcEligibleCount);
+            case 17: return getMarketValueOptions();
             default: return [];
         }
     } else if (currentStep === 14) {
@@ -939,7 +954,7 @@ function drawWheel() {
         currentStep === 1 || 
         currentStep === 11 || 
         (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15].includes(currentSubStep)) ||
+        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
         (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
     );
     
@@ -1337,7 +1352,7 @@ function getSectorAtAngle(angleDeg) {
         currentStep === 1 || 
         currentStep === 11 || 
         (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 13, 15].includes(currentSubStep)) ||
+        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
         (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
     );
 
@@ -1402,7 +1417,7 @@ function spinWheel() {
         currentStep === 1 || 
         currentStep === 11 || 
         (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 13, 15].includes(currentSubStep)) ||
+        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
         (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
     );
 
@@ -1886,6 +1901,7 @@ function transitionToStep(step) {
         remainingSeasons = parseInt(selectedSeasons.name.split(" ")[0]);
         totalClubsCount = parseInt(selectedClubs.name.split(" ")[0]);
         careerHistory = [];
+        currentPlayerAge = parseInt(selectedAge.name) || 18;
         
         const timelineContainer = document.getElementById("timelineContainer");
         if (timelineContainer) {
@@ -2124,6 +2140,32 @@ function generateModalTrophiesHtml() {
         }
         
         const activeLeagueObj = leagues.find(l => l.name === rec.league) || leagues[1];
+        const sAge = rec.startAge || 18;
+        let ageText = "";
+        if (currentLang === 'pt') {
+            ageText = ` (com ${sAge} anos)`;
+        } else if (currentLang === 'en') {
+            ageText = ` (at ${sAge} y/o)`;
+        } else if (currentLang === 'es') {
+            ageText = ` (con ${sAge} años)`;
+        } else if (currentLang === 'ja') {
+            ageText = ` (${sAge}歳加入)`;
+        } else if (currentLang === 'zh') {
+            ageText = ` (${sAge}岁加入)`;
+        } else {
+            ageText = ` (at ${sAge})`;
+        }
+        
+        const durationStr = `${rec.years} ${rec.years === 1 ? (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'year' : 'ano') : (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'years' : 'anos')}${ageText}`;
+
+        let transferLabel = "";
+        if (currentLang === 'pt') transferLabel = "Transferência";
+        else if (currentLang === 'en') transferLabel = "Transfer";
+        else if (currentLang === 'es') transferLabel = "Transferencia";
+        else if (currentLang === 'ja') transferLabel = "移籍金";
+        else if (currentLang === 'zh') transferLabel = "转会身价";
+        else transferLabel = "Transfer";
+
         html += `
             <div class="modal-trophy-card">
                 <!-- Coluna da Esquerda: Info do Clube -->
@@ -2132,7 +2174,11 @@ function generateModalTrophiesHtml() {
                         <span class="modal-trophy-club" style="color: ${activeLeagueObj.color}">${getClubCrestEmoji(rec.team.name)} ${rec.team.name}</span>
                     </div>
                     <div class="modal-trophy-league">${translateTerm("continents", rec.league) || rec.league}</div>
-                    <div class="modal-trophy-duration-badge">${rec.years} ${rec.years === 1 ? (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'year' : 'ano') : (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'years' : 'anos')}</div>
+                    <div class="modal-trophy-market-value" style="font-size: 0.72rem; color: #4ade80; font-weight: 700; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.25rem; margin: 0.1rem 0;">
+                        <span>💸</span>
+                        <span>${transferLabel}: ${rec.marketValue || "€0"}</span>
+                    </div>
+                    <div class="modal-trophy-duration-badge" style="margin-top: 0.1rem;">${durationStr}</div>
                 </div>
                 <!-- Divisória -->
                 <div class="modal-trophy-divider"></div>
@@ -2705,6 +2751,36 @@ function showFinalJourney() {
             summaryNationalTrophies.style.color = (ganhouCopaMundo || ganhouContinentalSelecoes) ? "#fef08a" : convocandoSelecao ? "#86efac" : "#cbd5e1";
         }
 
+        // 3.5. Novas Estatísticas do Dashboard: Valor de Mercado (Auge) & Aposentadoria
+        const summaryMarketValue = document.getElementById("summaryMarketValue");
+        if (summaryMarketValue) {
+            summaryMarketValue.innerText = peakMarketValueFormatted;
+            summaryMarketValue.style.color = "#4ade80";
+        }
+        const summaryRetirement = document.getElementById("summaryRetirement");
+        if (summaryRetirement) {
+            const reasonName = selectedRetirementReason ? selectedRetirementReason.name : (currentLang === 'pt' ? "Fim de Carreira" : "Career End");
+            const translatedReason = translateTerm("retirementReasons", reasonName) || reasonName;
+            
+            let retirementAgeText = "";
+            if (currentLang === 'pt') {
+                retirementAgeText = ` (se aposentou com ${currentPlayerAge} anos)`;
+            } else if (currentLang === 'en') {
+                retirementAgeText = ` (retired at ${currentPlayerAge} y/o)`;
+            } else if (currentLang === 'es') {
+                retirementAgeText = ` (se retiró con ${currentPlayerAge} años)`;
+            } else if (currentLang === 'ja') {
+                retirementAgeText = ` (${currentPlayerAge}歳で引退)`;
+            } else if (currentLang === 'zh') {
+                retirementAgeText = ` (在 ${currentPlayerAge} 岁退休)`;
+            } else {
+                retirementAgeText = ` (retired at ${currentPlayerAge})`;
+            }
+            
+            summaryRetirement.innerText = translatedReason + retirementAgeText;
+            summaryRetirement.style.color = "#cbd5e1";
+        }
+
         // 4. Configuração e Sincronização do Input Plano de Nome no Dashboard
         const dbNameInput = document.getElementById("dashboardPlayerNameInput");
         if (dbNameInput) {
@@ -2775,6 +2851,10 @@ function resetWholeJourney() {
     remainingSeasons = 0;
     totalClubsCount = 0;
     careerHistory = [];
+    selectedMarketValue = null;
+    peakMarketValueRaw = 0;
+    peakMarketValueFormatted = "€0";
+    currentPlayerAge = 18;
 
     // Reset Realistic Calendar, Dual Cup & Retirement Variables
     currentCalendarYear = 2026;
@@ -2837,9 +2917,9 @@ function resetWholeJourney() {
 // 1. Team Strength Classifier (1 to 5 stars)
 function getTeamStrength(teamName) {
     const stars5 = ["Flamengo", "Palmeiras", "Manchester City", "Real Madrid", "Bayern de Munique", "Paris Saint-Germain", "Inter Miami", "Al-Hilal", "Al-Nassr"];
-    const stars4 = ["São Paulo", "Atlético Mineiro", "Arsenal", "Liverpool", "Manchester United", "Barcelona", "Atlético de Madrid", "Inter de Milão", "Juventus", "Milan", "Borussia Dortmund", "Bayer Leverkusen", "Monaco", "Lyon", "LA Galaxy", "LAFC", "Al-Ittihad", "Al-Ahli", "Al-Shabab"];
-    const stars3 = ["Fluminense", "Cruzeiro", "Grêmio", "Tottenham", "Chelsea", "Newcastle United", "Aston Villa", "Sevilla", "Real Sociedad", "Athletic Bilbao", "Roma", "Lazio", "Atalanta", "RB Leipzig", "Eintracht Frankfurt", "Stuttgart", "Lille", "Lens", "Columbus Crew", "Seattle Sounders", "Al-Ettifaq", "Al-Taawoun", "Al-Fateh", "Al-Qadsiah"];
-    const stars2 = ["Botafogo", "Vasco da Gama", "Santos", "Athletico Paranaense", "Red Bull Bragantino", "Bahia", "Fortaleza", "West Ham United", "Brighton & Hove Albion", "Everton", "Valencia", "Villarreal", "Real Betis", "Napoli", "Fiorentina", "Bologna", "Torino", "Genoa", "Wolfsburg", "Freiburg", "Werder Bremen", "Nice", "Rennes", "Reims", "Orlando City", "Atlanta United", "New York City FC", "Al-Khaleej", "Al-Wehda", "Al-Fayha", "Damac", "Al-Raed", "Al-Tai"];
+    const stars4 = ["São Paulo", "Atlético Mineiro", "Arsenal", "Liverpool", "Manchester United", "Barcelona", "Atlético de Madrid", "Inter de Milão", "Juventus", "Milan", "Borussia Dortmund", "Bayer Leverkusen", "Monaco", "Lyon", "LA Galaxy", "LAFC", "Al-Ittihad", "Al-Ahli", "Al-Shabab", "Benfica", "Porto", "Sporting CP"];
+    const stars3 = ["Fluminense", "Cruzeiro", "Grêmio", "Tottenham", "Chelsea", "Newcastle United", "Aston Villa", "Sevilla", "Real Sociedad", "Athletic Bilbao", "Roma", "Lazio", "Atalanta", "RB Leipzig", "Eintracht Frankfurt", "Stuttgart", "Lille", "Lens", "Columbus Crew", "Seattle Sounders", "Al-Ettifaq", "Al-Taawoun", "Al-Fateh", "Al-Qadsiah", "Braga"];
+    const stars2 = ["Botafogo", "Vasco da Gama", "Santos", "Athletico Paranaense", "Red Bull Bragantino", "Bahia", "Fortaleza", "West Ham United", "Brighton & Hove Albion", "Everton", "Valencia", "Villarreal", "Real Betis", "Napoli", "Fiorentina", "Bologna", "Torino", "Genoa", "Wolfsburg", "Freiburg", "Werder Bremen", "Nice", "Rennes", "Reims", "Orlando City", "Atlanta United", "New York City FC", "Al-Khaleej", "Al-Wehda", "Al-Fayha", "Damac", "Al-Raed", "Al-Tai", "Vitória de Guimarães"];
 
     if (stars5.includes(teamName)) return 5;
     if (stars4.includes(teamName)) return 4;
@@ -2855,6 +2935,7 @@ function getHomeLeague() {
     
     // Direct domestic mappings
     if (country === "Brasil") return "🇧🇷 Brasileirão (BRA)";
+    if (country === "Portugal") return "🇵🇹 Liga Portugal (POR)";
     if (country === "Reino Unido" || country === "Inglaterra") return "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (ING)";
     if (country === "Espanha") return "🇪🇸 La Liga (ESP)";
     if (country === "Itália") return "🇮🇹 Serie A (ITA)";
@@ -2974,6 +3055,7 @@ function getTeamOptionsWithWeights(rawTeams, leagueName) {
 
 function getDomesticCupName(leagueName) {
     if (leagueName.includes("Brasileirão")) return "Copa do Brasil";
+    if (leagueName.includes("Liga Portugal")) return "Taça de Portugal";
     if (leagueName.includes("Premier League")) return "FA Cup";
     if (leagueName.includes("La Liga")) return "Copa del Rey";
     if (leagueName.includes("Serie A")) return "Coppa Italia";
@@ -3011,7 +3093,7 @@ function getContinentalTournamentName(leagueName) {
         return "Copa Libertadores";
     }
     // Europe (UEFA)
-    if (["ING", "ESP", "ITA", "ALE", "FRA", "RUS", "UKR"].includes(code)) {
+    if (["ING", "ESP", "ITA", "ALE", "FRA", "RUS", "UKR", "POR"].includes(code)) {
         return "UEFA Champions League";
     }
     // North America (CONCACAF)
@@ -3047,7 +3129,7 @@ function getContinentalTournamentOptions() {
     let options = [];
     
     // Europe (UEFA)
-    if (["ING", "ESP", "ITA", "ALE", "FRA", "RUS", "UKR"].includes(code)) {
+    if (["ING", "ESP", "ITA", "ALE", "FRA", "RUS", "UKR", "POR"].includes(code)) {
         let wChampions = 10;
         let wEuropa = 40;
         let wConference = 50;
@@ -3447,7 +3529,7 @@ function getNumberOptions(max) {
 }
 
 function getRetirementReasonOptions() {
-    return [
+    const options = [
         { name: "Dores Crônicas 🤕", desc: "dores crônicas incessantes nos joelhos e articulações, tornando o sacrifício físico diário insuportável", color: "#4c141d" },
         { name: "Lesão Grave 🏥", desc: "uma grave lesão de ligamento na pré-temporada, acelerando a decisão de pendurar as chuteiras", color: "#4c2d14" },
         { name: "Escolha Própria 🚶‍♂️", desc: "escolha própria de sair por cima, querendo aproveitar o tempo livre com a família enquanto ainda está no auge físico", color: "#143d25" },
@@ -3455,6 +3537,13 @@ function getRetirementReasonOptions() {
         { name: "Desejo de ser Treinador 📋", desc: "o desejo ardente de iniciar imediatamente os estudos para se tornar treinador de futebol", color: "#2d144c" },
         { name: "Desgaste Mental 🧠", desc: "desgaste mental acumulado com a rotina pesada de viagens, hotéis e pressões insustentáveis da torcida", color: "#14404c" }
     ];
+    
+    // If player retires under 35, "Idade Avançada" is not possible
+    if (currentPlayerAge < 35) {
+        return options.filter(opt => opt.name !== "Idade Avançada 👴");
+    }
+    
+    return options;
 }
 
 function getAttributeImprovementCountOptions() {
@@ -3487,6 +3576,8 @@ function startCareerSubStep() {
 
     // Atualiza os cartões móveis de progresso em tempo real durante a carreira
     if (currentStep === 13) {
+        updateAgeDisplay();
+        
         const mSeasons = document.getElementById("m-box-seasons");
         if (mSeasons) {
             const mVal = mSeasons.querySelector(".m-stat-val");
@@ -3507,93 +3598,102 @@ function startCareerSubStep() {
 
         switch (currentSubStep) {
             case 0:
-                appTitle.innerText = `Carreira - ${clubNum}º Clube`;
+                appTitle.innerText = getCareerHeader(`Carreira - ${clubNum}º Clube`);
                 appSubtitle.innerText = `Em qual campeonato você jogará pelo seu ${ordinal} clube?`;
                 statusText.innerText = "Aguardando sorteio do campeonato...";
                 break;
             case 1:
-                appTitle.innerText = `Carreira - ${clubNum}º Clube`;
+                appTitle.innerText = getCareerHeader(`Carreira - ${clubNum}º Clube`);
                 appSubtitle.innerText = `Qual time você defenderá no ${selectedCareerLeague}?`;
                 statusText.innerText = `Aguardando sorteio do time no ${selectedCareerLeague}...`;
                 break;
             case 2:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantos anos você permanecerá jogando pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio do tempo de contrato...";
                 break;
             case 3:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Você conquistou o título do campeonato nacional (${selectedCareerLeague.replace(/\s*\(.*?\)/, "")})?`;
                 statusText.innerText = "Aguardando sorteio do título da liga...";
                 break;
             case 4:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantas vezes você foi campeão da liga nacional pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio da quantidade de títulos da liga...";
                 break;
             case 5:
                 const cupName = getDomesticCupName(selectedCareerLeague);
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Você venceu a copa nacional (${cupName}) pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = `Aguardando sorteio da ${cupName}...`;
                 break;
             case 6:
                 const cupName2 = getDomesticCupName(selectedCareerLeague);
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantas vezes você ergueu a taça da ${cupName2}?`;
                 statusText.innerText = `Aguardando sorteio da quantidade de taças da ${cupName2}...`;
                 break;
             case 7:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Você conquistou algum título internacional defendendo o ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio de título internacional...";
                 break;
             case 12:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Qual título internacional você ergueu pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio do torneio internacional...";
                 break;
             case 8:
                 const tourneyName = selectedContinentalTournament ? selectedContinentalTournament.name : "Torneio Continental";
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantas vezes você ergueu a taça da ${tourneyName}?`;
                 statusText.innerText = `Aguardando sorteio da quantidade de títulos da ${tourneyName}...`;
                 break;
             case 13:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Você conquistou a Copa Intercontinental pelo ${selectedCareerTeam.name}? (Torneio Anual)`;
                 statusText.innerText = "Aguardando sorteio da Copa Intercontinental...";
                 break;
             case 14:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantas vezes você conquistou a Copa Intercontinental pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando quantidade de títulos da Copa Intercontinental...";
                 break;
             case 15:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Você conquistou o Mundial de Clubes da FIFA pelo ${selectedCareerTeam.name}? (Torneio Quadrienal)`;
                 statusText.innerText = "Aguardando sorteio do Mundial de Clubes da FIFA...";
                 break;
             case 16:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantas vezes você conquistou o Mundial de Clubes da FIFA pelo ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando quantidade de títulos do Mundial de Clubes da FIFA...";
                 break;
             case 9:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Sua qualidade técnica ou física evoluiu enquanto defendia o ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio de evolução de atributos...";
                 break;
             case 10:
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Quantos atributos você conseguiu aprimorar em seus treinos no ${selectedCareerTeam.name}?`;
                 statusText.innerText = "Aguardando sorteio da quantidade de atributos...";
                 break;
             case 11:
                 const remainingUpgradeText = remainingAttributeImprovements > 1 ? ` (Faltam ${remainingAttributeImprovements})` : "";
-                appTitle.innerText = `Carreira - ${selectedCareerTeam.name}`;
+                appTitle.innerText = getCareerHeader(selectedCareerTeam.name);
                 appSubtitle.innerText = `Gire para descobrir qual atributo você aprimorou!${remainingUpgradeText}`;
                 statusText.innerText = "Aguardando sorteio do atributo melhorado...";
+                break;
+            case 17:
+                const mvHeader = currentLang === 'pt' ? 'Valor de Mercado' : currentLang === 'en' ? 'Market Value' : currentLang === 'es' ? 'Valor de Mercado' : currentLang === 'ja' ? '市場価値' : '市场价值';
+                const mvSub = currentLang === 'pt' ? `Qual será o seu valor de mercado na transferência para o ${selectedCareerTeam.name}?` : currentLang === 'en' ? `What will be your market value when transferring to ${selectedCareerTeam.name}?` : currentLang === 'es' ? `¿Cuál será tu valor de mercado en la transferência al ${selectedCareerTeam.name}?` : currentLang === 'ja' ? `${selectedCareerTeam.name}への移籍時の市場価値は？` : `转会至 ${selectedCareerTeam.name} 时的市场价值是多少？`;
+                const mvStatus = currentLang === 'pt' ? "Aguardando sorteio do valor de mercado..." : currentLang === 'en' ? "Waiting for market value draw..." : currentLang === 'es' ? "Esperando sorteo del valor de mercado..." : currentLang === 'ja' ? "市場価値の抽選待ち..." : "等待市场价值抽签...";
+                
+                appTitle.innerText = getCareerHeader(mvHeader);
+                appSubtitle.innerText = mvSub;
+                statusText.innerText = mvStatus;
                 break;
         }
     } else if (currentStep === 14) {
@@ -3689,7 +3789,7 @@ function handleCareerSubStepResult(winner) {
             if (remainingClubs === 1) {
                 selectedCareerYears = remainingSeasons;
                 statusText.innerText = `Time sorteado: ${selectedCareerTeam.name}! (Contrato definido automaticamente: ${remainingSeasons} ${remainingSeasons === 1 ? 'ano' : 'anos'} para encerrar a carreira)`;
-                queueTransition(() => { currentSubStep = 3; startCareerSubStep(); });
+                queueTransition(() => { currentSubStep = 17; startCareerSubStep(); });
             } else {
                 statusText.innerText = `Time sorteado: ${selectedCareerTeam.name}!`;
                 queueTransition(() => { currentSubStep = 2; startCareerSubStep(); });
@@ -3699,6 +3799,17 @@ function handleCareerSubStepResult(winner) {
         case 2:
             selectedCareerYears = winner.value;
             statusText.innerText = `Tempo de contrato: ${selectedCareerYears} ${selectedCareerYears === 1 ? 'ano' : 'anos'}!`;
+            queueTransition(() => { currentSubStep = 17; startCareerSubStep(); });
+            break;
+
+        case 17:
+            selectedMarketValue = winner.name;
+            const rolledRawVal = winner.rawValue || 5000;
+            if (rolledRawVal > peakMarketValueRaw) {
+                peakMarketValueRaw = rolledRawVal;
+                peakMarketValueFormatted = selectedMarketValue;
+            }
+            statusText.innerText = `Valor de mercado definido: ${selectedMarketValue}!`;
             queueTransition(() => { currentSubStep = 3; startCareerSubStep(); });
             break;
             
@@ -3932,11 +4043,268 @@ function getContinentalSelectionTournamentName() {
     }
 }
 
+function getProSeasonsOptions() {
+    const debutAge = (selectedAge && selectedAge.name) ? (parseInt(selectedAge.name) || 18) : 18;
+    
+    return proSeasons.map(opt => {
+        const numSeasons = parseInt(opt.name) || 15;
+        let multiplier = 1.0;
+        
+        if (debutAge === 16) {
+            if (numSeasons >= 18) multiplier = 3.0;
+            else if (numSeasons >= 15) multiplier = 1.5;
+            else multiplier = 0.3;
+        } else if (debutAge === 17) {
+            if (numSeasons >= 17) multiplier = 2.2;
+            else if (numSeasons >= 15) multiplier = 1.3;
+            else multiplier = 0.5;
+        } else if (debutAge === 18) {
+            if (numSeasons >= 15 && numSeasons <= 18) multiplier = 1.2;
+        } else if (debutAge === 19) {
+            multiplier = 1.0;
+        } else if (debutAge === 20) {
+            if (numSeasons >= 18) multiplier = 0.4;
+            else if (numSeasons >= 14) multiplier = 0.8;
+            else multiplier = 1.8;
+        } else if (debutAge === 21) {
+            if (numSeasons >= 17) multiplier = 0.2;
+            else if (numSeasons >= 14) multiplier = 0.6;
+            else multiplier = 2.5;
+        }
+        
+        return {
+            ...opt,
+            weight: Math.max(1, Math.round(opt.weight * multiplier))
+        };
+    });
+}
+
 // 3. Dynamic Chances
 function getNationalTeamCallUpChance() {
     const avgAttr = getPlayerAverageAttribute();
-    return Math.max(1, Math.min(95, Math.round((avgAttr - 1) * 10)));
+    // Base chance from attributes: 10% to 64%
+    let chance = 10 + (avgAttr - 1) * 6;
+    
+    // Add cumulative bonuses from career history achievements
+    let bonus = 0;
+    careerHistory.forEach(record => {
+        // --- 1. Domestic Leagues ---
+        if (record.wonLeague && record.leagueTitles > 0) {
+            let leagueWeight = 2; // Default Tier 4
+            const leagueName = record.league || "";
+            if (leagueName.includes("ING") || leagueName.includes("ESP")) {
+                leagueWeight = 5; // Tier 1
+            } else if (leagueName.includes("ITA") || leagueName.includes("ALE") || leagueName.includes("FRA") || leagueName.includes("BRA") || leagueName.includes("POR")) {
+                leagueWeight = 4; // Tier 2 (including Portugal)
+            } else if (leagueName.includes("ARG") || leagueName.includes("SAU") || leagueName.includes("RUS")) {
+                leagueWeight = 3; // Tier 3
+            }
+            bonus += record.leagueTitles * leagueWeight;
+        }
+
+        // --- 2. Domestic Cups ---
+        if (record.wonCup && record.cupTitles > 0) {
+            let cupWeight = 0.5; // Default Tier 4
+            const leagueName = record.league || "";
+            if (leagueName.includes("ING") || leagueName.includes("ESP")) {
+                cupWeight = 2.0; // Tier 1
+            } else if (leagueName.includes("ITA") || leagueName.includes("ALE") || leagueName.includes("FRA") || leagueName.includes("BRA") || leagueName.includes("POR")) {
+                cupWeight = 1.5; // Tier 2 (including Portugal)
+            } else if (leagueName.includes("ARG") || leagueName.includes("SAU") || leagueName.includes("RUS")) {
+                cupWeight = 1.0; // Tier 3
+            }
+            bonus += record.cupTitles * cupWeight;
+        }
+
+        // --- 3. Continental Tournaments ---
+        if (record.wonContinental && record.continentalTitles > 0) {
+            const tournament = record.continentalTournament || "";
+            let contWeight = 4; // Default secondary
+            
+            if (tournament === "UEFA Champions League") {
+                contWeight = 15;
+            } else if (tournament === "Copa Libertadores") {
+                contWeight = 12;
+            } else if (["Concacaf Champions Cup", "CAF Champions League", "AFC Champions League"].includes(tournament)) {
+                contWeight = 8;
+            } else if (tournament === "UEFA Europa League") {
+                contWeight = 7;
+            } else if (["OFC Champions League", "Copa Sul-Americana"].includes(tournament)) {
+                contWeight = 5;
+            } else if (tournament === "UEFA Conference League") {
+                contWeight = 4;
+            } else if (["Leagues Cup", "AFC Cup", "CAF Confederations Cup", "OFC Presidents Cup"].includes(tournament)) {
+                contWeight = 3;
+            } else if (tournament.includes("Champions") || tournament.includes("Libertadores")) {
+                contWeight = 8; // Generic main continental fallback
+            }
+            bonus += record.continentalTitles * contWeight;
+        }
+
+        // --- 4. Intercontinental & World Club Cup ---
+        if (record.wonIntercontinental && record.intercontinentalTitles > 0) {
+            bonus += record.intercontinentalTitles * 3;
+        }
+        if (record.wonWorldClubCup && record.worldClubCupTitles > 0) {
+            bonus += record.worldClubCupTitles * 5;
+        }
+    });
+
+    chance += bonus;
+    
+    // Cap between 5% and 98%
+    return Math.max(5, Math.min(98, Math.round(chance)));
 }
+
+// 3.5. Market Value & Age Helper Functions
+function calculateBaseMarketValue(ovr) {
+    if (ovr <= 45) {
+        return 5000 + (ovr - 35) * 4500;
+    }
+    if (ovr <= 60) {
+        return 50000 + (ovr - 45) * 63333;
+    }
+    if (ovr <= 75) {
+        return 1000000 + (ovr - 60) * 933333;
+    }
+    if (ovr <= 85) {
+        return 15000000 + (ovr - 75) * 6500000;
+    }
+    if (ovr <= 95) {
+        return 80000000 + (ovr - 85) * 27000000;
+    }
+    return 350000000 + (ovr - 95) * 162500000; // Maps OVR 99 to exactly €1BI max potential base!
+}
+
+function formatMarketValue(val) {
+    if (val >= 1000000000) {
+        if (currentLang === "pt") return "€1BI";
+        if (currentLang === "ja") return "€10億";
+        if (currentLang === "zh") return "€10亿";
+        return "€1B";
+    }
+    if (val >= 1000000) {
+        const millions = val / 1000000;
+        const formattedNum = millions >= 10 ? Math.round(millions) : millions.toFixed(1).replace(".0", "");
+        return `€${formattedNum}M`;
+    } else {
+        const thousands = val / 1000;
+        return `€${Math.round(thousands)}K`;
+    }
+}
+
+function getMarketValueOptions() {
+    const ovr = getPlayerOVR();
+    const baseValue = calculateBaseMarketValue(ovr);
+    
+    // Calculate current age
+    const startAge = parseInt(selectedAge.name) || 18;
+    const yearsPlayed = careerHistory.reduce((sum, r) => sum + r.years, 0);
+    const currentAge = startAge + yearsPlayed;
+    
+    // 1. Age Multiplier
+    let ageMultiplier = 1.0;
+    if (currentAge <= 20) ageMultiplier = 1.30;
+    else if (currentAge <= 23) ageMultiplier = 1.20;
+    else if (currentAge <= 28) ageMultiplier = 1.00;
+    else if (currentAge <= 31) ageMultiplier = 0.80;
+    else if (currentAge <= 34) ageMultiplier = 0.50;
+    else if (currentAge <= 37) ageMultiplier = 0.20;
+    else ageMultiplier = 0.05;
+    
+    // 2. Previous Club Achievements Multiplier
+    let achievementMultiplier = 1.0;
+    if (careerHistory.length > 0) {
+        const prevRecord = careerHistory[careerHistory.length - 1];
+        if (prevRecord.wonLeague && prevRecord.leagueTitles > 0) {
+            achievementMultiplier += prevRecord.leagueTitles * 0.15;
+        }
+        if (prevRecord.wonCup && prevRecord.cupTitles > 0) {
+            achievementMultiplier += prevRecord.cupTitles * 0.08;
+        }
+        if (prevRecord.wonContinental && prevRecord.continentalTitles > 0) {
+            const tournament = prevRecord.continentalTournament || "";
+            if (tournament === "UEFA Champions League") {
+                achievementMultiplier += prevRecord.continentalTitles * 0.40;
+            } else if (tournament === "Copa Libertadores") {
+                achievementMultiplier += prevRecord.continentalTitles * 0.30;
+            } else if (["Concacaf Champions Cup", "CAF Champions League", "AFC Champions League"].includes(tournament)) {
+                achievementMultiplier += prevRecord.continentalTitles * 0.20;
+            } else if (tournament === "UEFA Europa League") {
+                achievementMultiplier += prevRecord.continentalTitles * 0.18;
+            } else {
+                achievementMultiplier += prevRecord.continentalTitles * 0.10;
+            }
+        }
+        if (prevRecord.wonWorldClubCup && prevRecord.worldClubCupTitles > 0) {
+            achievementMultiplier += prevRecord.worldClubCupTitles * 0.10;
+        }
+        if (prevRecord.wonIntercontinental && prevRecord.intercontinentalTitles > 0) {
+            achievementMultiplier += prevRecord.intercontinentalTitles * 0.05;
+        }
+    }
+    
+    // 3. New League Exposure Multiplier
+    let leagueMultiplier = 1.0;
+    const leagueName = selectedCareerLeague || "";
+    if (leagueName.includes("ING") || leagueName.includes("ESP")) {
+        leagueMultiplier = 1.20;
+    } else if (leagueName.includes("ITA") || leagueName.includes("ALE") || leagueName.includes("FRA") || leagueName.includes("BRA") || leagueName.includes("POR")) {
+        leagueMultiplier = 1.08;
+    }
+    
+    // 4. Rookie / Debutant Discount (First club is always low value)
+    let rookieMultiplier = 1.0;
+    if (careerHistory.length === 0) {
+        rookieMultiplier = 0.08; // 92% discount for debutants
+    }
+    
+    // Calculate fair market value
+    const fairValue = baseValue * ageMultiplier * achievementMultiplier * leagueMultiplier * rookieMultiplier;
+    
+    // Generate the 5 options
+    const factors = [
+        { name: currentLang === 'pt' ? "Pechincha" : currentLang === 'en' ? "Bargain" : currentLang === 'es' ? "Ganga" : currentLang === 'ja' ? "バーゲン" : "廉价", mult: 0.70, weight: 15 },
+        { name: currentLang === 'pt' ? "Desconto" : currentLang === 'en' ? "Discount" : currentLang === 'es' ? "Descuento" : currentLang === 'ja' ? "割引" : "打折", mult: 0.88, weight: 30 },
+        { name: currentLang === 'pt' ? "Valor de Mercado" : currentLang === 'en' ? "Fair Value" : currentLang === 'es' ? "Valor de Mercado" : currentLang === 'ja' ? "市場価値" : "市场价值", mult: 1.00, weight: 45 },
+        { name: currentLang === 'pt' ? "Valorizado" : currentLang === 'en' ? "Highly Valued" : currentLang === 'es' ? "Valorado" : currentLang === 'ja' ? "高評価" : "溢价", mult: 1.15, weight: 25 },
+        { name: currentLang === 'pt' ? "Super Inflacionado" : currentLang === 'en' ? "Overpriced" : currentLang === 'es' ? "Super Inflado" : currentLang === 'ja' ? "高騰" : "超级通胀", mult: 1.35, weight: 10 }
+    ];
+    
+    return factors.map(f => {
+        const rawVal = Math.max(5000, Math.min(1000000000, fairValue * f.mult));
+        return {
+            name: formatMarketValue(rawVal),
+            rawValue: rawVal,
+            weight: f.weight,
+            type: f.name // Localized type name
+        };
+    });
+}
+
+function updateAgeDisplay() {
+    const ageBox = document.getElementById("box-age");
+    if (ageBox) {
+        const valueEl = ageBox.querySelector(".box-value");
+        if (valueEl) {
+            valueEl.innerText = getTranslatedAgeValue(`${currentPlayerAge} anos`);
+        }
+    }
+    const mAgeBox = document.getElementById("m-box-age");
+    if (mAgeBox) {
+        const mVal = mAgeBox.querySelector(".m-stat-val");
+        if (mVal) {
+            mVal.innerText = getTranslatedAgeValue(`${currentPlayerAge} anos`);
+        }
+    }
+}
+
+function getCareerHeader(baseTitle) {
+    const yearsText = currentLang === 'pt' ? 'anos' : currentLang === 'en' ? 'years old' : currentLang === 'es' ? 'años' : currentLang === 'ja' ? '歳' : '岁';
+    return `${baseTitle} (${currentPlayerAge} ${yearsText})`;
+}
+
+// 3.8. Dynamic Chances (Continuação)
 
 function getWorldCupParticipationChance() {
     const countryName = selectedCountry.name;
@@ -3976,10 +4344,26 @@ function getWorldCupWinChance() {
 
 function getBallonDorChance() {
     const avgAttr = getPlayerAverageAttribute();
-    if (avgAttr >= 9.0) return 75;
-    if (avgAttr >= 7.0) return 40;
-    if (avgAttr >= 5.0) return 15;
-    return 1;
+    let chance = 1;
+    if (avgAttr >= 9.0) chance = 75;
+    else if (avgAttr >= 7.0) chance = 40;
+    else if (avgAttr >= 5.0) chance = 15;
+    
+    // World Cup impact (balanced, not exaggerated)
+    if (jogouCopaMundo) {
+        // Participation bonus: +3% per World Cup played, capped at +10%
+        const participationBonus = Math.min(10, (quantidadeCopasDisputadas || 1) * 3);
+        chance += participationBonus;
+        
+        // World Cup Title bonus: +15% for the first title, +10% for subsequent titles, capped at +25%
+        if (ganhouCopaMundo && titulosCopaMundoCount > 0) {
+            const winBonus = 15 + Math.max(0, (titulosCopaMundoCount - 1) * 10);
+            chance += Math.min(25, winBonus);
+        }
+    }
+    
+    // Capped between 1% and 95% to maintain excitement and avoid absolute certainty
+    return Math.max(1, Math.min(95, Math.round(chance)));
 }
 
 // 4. Goals and Assists Bracket Generators
@@ -4428,7 +4812,10 @@ function finishCurrentClubDraft() {
         wonWorldClubCup: wonWorldClubCup,
         worldClubCupTitles: wonWorldClubCup ? worldClubCupTitlesCount : 0,
         improvedAttributes: improvedAttributes,
-        numImproved: improvedAttributes ? numImprovedAttributes : 0
+        numImproved: improvedAttributes ? numImprovedAttributes : 0,
+        marketValue: selectedMarketValue,
+        startAge: currentPlayerAge,
+        endAge: currentPlayerAge + selectedCareerYears
     };
     
     careerHistory.push(record);
@@ -4436,6 +4823,7 @@ function finishCurrentClubDraft() {
     
     remainingSeasons -= selectedCareerYears;
     currentCalendarYear += selectedCareerYears; // Avança o ano civil da carreira!
+    currentPlayerAge += selectedCareerYears; // Avança a idade do jogador!
     currentClubIndex++;
     
     if (currentClubIndex < totalClubsCount) {
@@ -4460,6 +4848,7 @@ function finishCurrentClubDraft() {
         numImprovedAttributes = 0;
         intercontinentalEligibleCount = 0;
         cwcEligibleCount = 0;
+        selectedMarketValue = null;
         
         // Transiciona para o próximo clube de forma síncrona para que a roleta atualize e gire imediatamente
         startCareerSubStep();
@@ -4498,7 +4887,23 @@ function appendTimelineCard(record, index) {
     const tEvol = currentLang === 'pt' ? (record.numImproved === 1 ? 'evolução' : 'evoluções') : currentLang === 'en' ? (record.numImproved === 1 ? 'upgrade' : 'upgrades') : currentLang === 'es' ? (record.numImproved === 1 ? 'evolución' : 'evoluciones') : currentLang === 'ja' ? '能力向上' : '次属性提升';
     const tNoEvol = currentLang === 'pt' ? 'Sem evoluções' : currentLang === 'en' ? 'No upgrades' : currentLang === 'es' ? 'Sin evoluciones' : currentLang === 'ja' ? '能力向上なし' : '无属性提升';
     const tYear = record.years === 1 ? (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'year' : 'ano') : (currentLang === 'ja' || currentLang === 'zh' ? '年' : currentLang === 'en' ? 'years' : 'anos');
-    
+    const sAge = record.startAge || 18;
+    let ageText = "";
+    if (currentLang === 'pt') {
+        ageText = ` (com ${sAge} anos)`;
+    } else if (currentLang === 'en') {
+        ageText = ` (at ${sAge} y/o)`;
+    } else if (currentLang === 'es') {
+        ageText = ` (con ${sAge} años)`;
+    } else if (currentLang === 'ja') {
+        ageText = ` (${sAge}歳)`;
+    } else if (currentLang === 'zh') {
+        ageText = ` (${sAge}岁)`;
+    } else {
+        ageText = ` (at ${sAge})`;
+    }
+    const durationStr = `${record.years} ${tYear}${ageText}`;
+
     // Translate cup name if necessary
     let translatedCupName = cupName.split(" ")[0];
     if (currentLang === "en") {
@@ -4538,10 +4943,13 @@ function appendTimelineCard(record, index) {
     card.innerHTML = `
         <div class="timeline-card-header">
             <span class="timeline-club-name" style="color: ${activeLeagueObj.color}">${getClubCrestEmoji(record.team.name)} ${record.team.name}</span>
-            <span class="timeline-club-years">${record.years} ${tYear}</span>
+            <span class="timeline-club-years">${durationStr}</span>
         </div>
         <div class="timeline-card-body">
-            <div style="font-size: 0.72rem; color: var(--color-text-secondary); margin-bottom: 2px;">${translateTerm("continents", record.league) || record.league}</div>
+            <div style="font-size: 0.72rem; color: var(--color-text-secondary); margin-bottom: 2px; display: flex; justify-content: space-between;">
+                <span>${translateTerm("continents", record.league) || record.league}</span>
+                <span style="color: #4ade80; font-weight: bold; font-family: 'Outfit', sans-serif;">${record.marketValue || ""}</span>
+            </div>
             <div class="${achievementClass}">${achievementText}</div>
             <div class="${evolutionClass}">${evolutionText}</div>
         </div>
@@ -4596,8 +5004,12 @@ class ConfettiParticle {
         this.rotation += this.rotationSpeed;
 
         if (this.y > confettiCanvas.height) {
-            this.y = -20;
-            this.x = Math.random() * confettiCanvas.width;
+            if (confettiSpawning) {
+                this.y = -20;
+                this.x = Math.random() * confettiCanvas.width;
+            } else {
+                this.y = confettiCanvas.height + 100; // Place it off-screen so it won't draw
+            }
         }
     }
 
@@ -4618,14 +5030,22 @@ function resizeConfettiCanvas() {
     confettiCanvas.height = window.innerHeight;
 }
 
+let confettiSpawning = true;
+
 function startConfetti() {
     confettiActive = true;
+    confettiSpawning = true;
     resizeConfettiCanvas();
     confettiParticles = [];
     for (let i = 0; i < 140; i++) {
         confettiParticles.push(new ConfettiParticle());
     }
     animateConfetti();
+    
+    // Stop spawning new particles after 6 seconds to let them float down naturally
+    setTimeout(() => {
+        confettiSpawning = false;
+    }, 6000);
 }
 
 function stopConfetti() {
@@ -4637,12 +5057,22 @@ function animateConfetti() {
     if (!confettiActive) return;
     ctxConfetti.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     
+    let activeParticles = 0;
     confettiParticles.forEach(p => {
         p.update();
         p.draw();
+        if (p.y <= confettiCanvas.height) {
+            activeParticles++;
+        }
     });
     
-    requestAnimationFrame(animateConfetti);
+    if (!confettiSpawning && activeParticles === 0) {
+        confettiActive = false;
+    }
+    
+    if (confettiActive) {
+        requestAnimationFrame(animateConfetti);
+    }
 }
 
 // 13. Event Listeners & Init
