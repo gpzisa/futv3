@@ -4614,7 +4614,12 @@ function getGoalsOptions() {
     }
     
     // 12% nerf and position-based multiplier applied to expected goals
-    const expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88 * positionMultiplier;
+    let expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88 * positionMultiplier;
+    
+    // Attackers who never got called up to the national team score slightly fewer career goals (22% penalty)
+    if (["Centroavante", "Ponta Esquerda", "Ponta Direita"].includes(position) && !convocandoSelecao) {
+        expectedGoals *= 0.78;
+    }
     
     if (position === "Goleiro") {
         return [
@@ -4669,7 +4674,16 @@ function getAssistsOptions() {
     
     const seasons = parseInt(selectedSeasons.name.split(" ")[0]) || 15;
     // 12% nerf applied to expected assists
-    const expectedAssists = baseAssistsPerYear * assistsMultiplier * seasons * 0.88;
+    let expectedAssists = baseAssistsPerYear * assistsMultiplier * seasons * 0.88;
+    
+    // Attack and midfield players who never got called up to the national team distribute slightly fewer career assists (22% penalty)
+    const attackOrMidfield = [
+        "Centroavante", "Ponta Esquerda", "Ponta Direita", 
+        "Meia-Armador", "Meio-Campo", "Volante"
+    ];
+    if (attackOrMidfield.includes(position) && !convocandoSelecao) {
+        expectedAssists *= 0.78;
+    }
     
     if (position === "Goleiro") {
         return [
