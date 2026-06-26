@@ -1526,90 +1526,92 @@ body::before {
 
 @media (max-width: 500px) {
     body {
-        padding: 0.8rem 0 !important;
+        padding: 1rem 0 !important;
         overflow-x: hidden !important;
         max-width: 100vw !important;
     }
 
     .app-container {
-        padding: 0.9rem !important; /* Reduzido para maximizar o espaço interno do painel */
-        gap: 1.1rem !important;
-        border-radius: 20px !important;
-        width: 95% !important;
+        padding: 1.35rem 1.1rem !important; /* Mais espaçoso e premium */
+        gap: 1.45rem !important;
+        border-radius: 24px !important;
+        width: 96% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
     }
 
     #app-title {
-        font-size: 1.52rem;
+        font-size: 1.7rem;
         letter-spacing: 1px;
     }
 
     #app-title::after {
-        width: 70px;
-        height: 2px;
-        margin-top: 5px;
+        width: 80px;
+        height: 2.5px;
+        margin-top: 6px;
     }
 
     .app-subtitle {
-        font-size: 0.84rem;
-        line-height: 1.5;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        margin-bottom: 0.2rem;
     }
     
-    /* Contenção da Roleta para caber perfeitamente no container sem transbordar lateralmente */
+    /* Contenção da Roleta premium e expandida */
     .roulette-wrapper {
-        width: 290px !important;
-        height: 290px !important;
-        max-width: 85vw !important;
-        max-height: 85vw !important;
-        margin: 0 auto !important;
+        width: 315px !important;
+        height: 315px !important;
+        max-width: 88vw !important;
+        max-height: 88vw !important;
+        margin: 0.2rem auto 0.4rem auto !important;
         aspect-ratio: 1 / 1 !important;
     }
     
     .spin-button {
-        width: 70px;
-        height: 70px;
-        font-size: 0.76rem;
+        width: 76px;
+        height: 76px;
+        font-size: 0.8rem;
         border-width: 3px;
     }
     
     .roulette-pointer {
-        width: 32px;
-        height: 42px;
-        top: -16px;
+        width: 34px;
+        height: 44px;
+        top: -18px;
     }
 
-    /* Redução de padding do painel e ajustes de colunas para impedir que caixas transbordem a borda direita */
+    /* Mais espaçamento na barra lateral e abas */
     .sidebar-section {
         width: 100% !important;
         max-height: none !important;
-        padding: 0.75rem !important; /* Reduzido de 1.4rem para liberar mais espaço útil horizontal para os atributos */
+        padding: 1.2rem 0.95rem !important; /* Mais respiro para os elementos internos */
         box-sizing: border-box !important;
     }
 
     .sidebar-tabs {
         width: 100% !important;
         box-sizing: border-box !important;
+        margin-bottom: 0.9rem !important;
     }
 
     .tab-btn {
-        padding: 0.7rem 0.15rem !important; /* Reduzido o padding lateral das abas para evitar quebra em linhas duplas no mobile */
-        font-size: 0.72rem !important;
+        padding: 0.8rem 0.6rem !important; /* Mais área de toque e respiro */
+        font-size: 0.78rem !important;
     }
 
-    /* Grid de atributos principal reconfigurado para 2 colunas com segurança de encolhimento */
+    /* Grid de atributos principal com caixas maiores e menos compactas */
     .result-boxes-container {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.4rem !important;
+        gap: 0.6rem !important; /* Mais espaço entre os cards de atributos */
         width: 100% !important;
         max-width: 100% !important;
     }
 
     .result-box {
-        padding: 0.4rem 0.5rem !important;
-        gap: 0.1rem !important;
-        min-width: 0 !important; /* Crucial: impede que as caixas forcem a largura mínima e estiquem a tela */
+        padding: 0.65rem 0.8rem !important; /* Caixas mais gordinhas e elegantes */
+        gap: 0.2rem !important;
+        min-width: 0 !important;
     }
 
     #box-clubs {
@@ -1617,16 +1619,16 @@ body::before {
     }
 
     .box-label {
-        font-size: 0.56rem !important;
-        letter-spacing: 0.3px !important;
+        font-size: 0.68rem !important;
+        letter-spacing: 0.4px !important;
     }
 
     .box-value {
-        font-size: 0.8rem !important;
+        font-size: 0.92rem !important;
     }
 
     .box-placeholder {
-        font-size: 0.72rem !important;
+        font-size: 0.84rem !important;
     }
 
     .mobile-quick-stats-container {
@@ -1637,89 +1639,89 @@ body::before {
 
     .speed-table-section {
         overflow-x: auto;
-        padding: 0.75rem;
+        padding: 0.95rem 0.75rem;
     }
 
     .speed-rarity-table {
-        font-size: 0.7rem;
-        min-width: 280px;
+        font-size: 0.76rem;
+        min-width: 290px;
     }
 
     .speed-rarity-table th, .speed-rarity-table td {
-        padding: 0.35rem 0.5rem;
+        padding: 0.45rem 0.6rem;
     }
 
     /* Modal Layout e Sizing para Mobile */
     .modal-content {
-        padding: 1.2rem 0.95rem;
-        border-radius: 24px;
+        padding: 1.6rem 1.3rem;
+        border-radius: 26px;
     }
 
     .modal-badge {
-        padding: 4px 12px;
-        font-size: 0.68rem;
+        padding: 6px 16px;
+        font-size: 0.74rem;
         letter-spacing: 2px;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.95rem;
     }
 
     .modal-lead {
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
+        font-size: 0.92rem;
+        margin-bottom: 1.2rem;
     }
 
     .summary-card {
-        padding: 0.85rem;
-        margin-bottom: 1rem;
-        border-radius: 16px;
+        padding: 1.1rem;
+        margin-bottom: 1.2rem;
+        border-radius: 18px;
     }
 
     .summary-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.35rem !important;
+        gap: 0.55rem !important;
         width: 100% !important;
         max-width: 100% !important;
     }
 
     .summary-item {
-        padding: 0.35rem !important;
-        border-radius: 10px;
+        padding: 0.6rem !important; /* Espaçamento muito melhor nos cards finais */
+        border-radius: 12px;
         min-width: 0 !important;
     }
 
     .summary-label {
-        font-size: 0.56rem !important;
+        font-size: 0.68rem !important;
     }
 
     .summary-val {
-        font-size: 0.76rem !important;
+        font-size: 0.88rem !important;
     }
 
     .story-box {
-        padding: 1rem;
-        font-size: 0.82rem;
-        line-height: 1.5;
-        max-height: 170px;
-        margin-bottom: 1.2rem;
+        padding: 1.25rem;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        max-height: 220px; /* Expandido para ler melhor a biografia */
+        margin-bottom: 1.4rem;
     }
 
     .modal-tab-btn {
-        padding: 0.75rem 0.6rem;
-        font-size: 0.74rem;
+        padding: 0.85rem 0.75rem;
+        font-size: 0.8rem;
     }
 
     /* Downscaling do card FUT usando transform: scale para ajuste milimétrico de fidelidade no mobile */
     .card-column {
         width: 100%;
-        height: 310px;
+        height: 330px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: visible;
-        margin-bottom: -1.2rem;
+        margin-bottom: -0.6rem;
     }
 
     .fut-card-container {
-        transform: scale(0.8);
+        transform: scale(0.85); /* Levemente maior para melhor visibilidade */
         transform-origin: center center;
         backface-visibility: hidden;
         transform-style: preserve-3d;
@@ -1727,7 +1729,7 @@ body::before {
     }
 
     .fut-card-container:hover {
-        transform: scale(0.82) translateY(-3px) rotateY(3deg);
+        transform: scale(0.87) translateY(-3px) rotateY(3deg);
     }
 
     #wheelCanvas {
@@ -1738,29 +1740,34 @@ body::before {
 
     .modal-footer {
         flex-direction: column !important;
-        gap: 0.6rem !important;
-        margin-top: 0.5rem;
+        gap: 0.75rem !important;
+        margin-top: 0.75rem;
     }
 
     .modal-footer button {
         width: 100% !important;
-        padding: 0.8rem 1.5rem !important;
-        font-size: 0.88rem !important;
+        padding: 0.9rem 1.5rem !important;
+        font-size: 0.92rem !important;
     }
 
     /* Prevenir quebra espremida de clube e anos na linha do tempo */
+    .timeline-card {
+        padding: 0.95rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+
     .timeline-card-header {
         flex-wrap: wrap !important;
         gap: 0.4rem !important;
     }
     
     .timeline-club-name {
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
     }
     
     .timeline-club-years {
-        font-size: 0.68rem !important;
-        padding: 2px 6px !important;
+        font-size: 0.72rem !important;
+        padding: 3px 8px !important;
     }
 }
 

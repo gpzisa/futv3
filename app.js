@@ -360,6 +360,44 @@ const heights = [
     { name: "2,00 m", desc: "um verdadeiro gigante dos gramados, operando como um paredão intransponível que impõe uma superioridade física e aérea inigualável contra qualquer adversário" }
 ];
 
+function getHeightOptions() {
+    const countryName = selectedCountry ? selectedCountry.name : "";
+    
+    const veryTall = ["Holanda", "Alemanha", "Croácia", "Bélgica", "Ucrânia"];
+    const tall = [
+        "França", "Reino Unido", "Espanha", "Itália", "Rússia", 
+        "Estados Unidos", "Canadá", "Austrália", "Nova Zelândia"
+    ];
+    const short = [
+        "Índia", "Bangladesh", "Indonésia", "Paquistão", "Filipinas", 
+        "Guatemala", "Peru", "Etiópia", "Quênia", "R.D. Congo", 
+        "Papua Nova Guiné", "Fiji"
+    ];
+    
+    let category = "medium";
+    if (veryTall.includes(countryName)) category = "veryTall";
+    else if (tall.includes(countryName)) category = "tall";
+    else if (short.includes(countryName)) category = "short";
+    
+    let weights = [];
+    if (category === "veryTall") {
+        weights = [1, 2, 3, 8, 15, 25, 25, 15, 5, 1];
+    } else if (category === "tall") {
+        weights = [2, 3, 5, 12, 22, 25, 18, 10, 2, 1];
+    } else if (category === "short") {
+        weights = [12, 20, 25, 22, 12, 6, 2, 1, 0, 0];
+    } else {
+        weights = [3, 6, 12, 22, 25, 18, 10, 3, 1, 0];
+    }
+    
+    return heights.map((h, idx) => {
+        return {
+            ...h,
+            weight: weights[idx]
+        };
+    });
+}
+
 // Master 10-level Attribute Tiers (1 to 10)
 const attributeTiers = [
     { name: "1/10 - Extremamente Ruim", weight: 4.0, rarity: "Comum", color: "#1e293b", desc: "um nível bastante instável e de iniciante, exigindo muita superação e treinos diários para aprimoramento" },
@@ -698,6 +736,7 @@ let ganhouCopaMundo = false;
 let titulosCopaMundoCount = 0;
 let ganhouBolaDeOuro = false;
 let bolaDeOuroCount = 0;
+let selectedBallonDorPlacement = null;
 let selectedCareerGoals = 0;
 let selectedCareerAssists = 0;
 let selectedGoalsRange = null;
@@ -867,13 +906,24 @@ function getTeamDescription(teamName, leagueName) {
     return templates[index];
 }
 
+function checkIsDynamicWeight() {
+    return (
+        currentStep === 1 || 
+        currentStep === 2 || 
+        currentStep === 11 || 
+        (currentStep >= 5 && currentStep <= 10) || 
+        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
+        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11, 13].includes(currentSubStep))
+    );
+}
+
 // Get items based on step
 function getCurrentItems() {
     if (currentStep < 13) {
         switch (currentStep) {
             case 0: return continents;
             case 1: return countryData[selectedContinent] || [];
-            case 2: return heights;
+            case 2: return getHeightOptions();
             case 3: return proAges;
             case 4: return footballPositions;
             case 5: return getPositionAttributeTiers("speed");
@@ -925,6 +975,7 @@ function getCurrentItems() {
             case 10: return getBallonDorCountOptions();
             case 11: return getCleanSheetsOptions();
             case 12: return getRetirementReasonOptions();
+            case 13: return getBallonDorPlacementOptions();
             default: return [];
         }
     }
@@ -950,13 +1001,7 @@ function drawWheel() {
     }
 
     // Dynamic weights check
-    const isDynamicWeight = (
-        currentStep === 1 || 
-        currentStep === 11 || 
-        (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
-        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
-    );
+    const isDynamicWeight = checkIsDynamicWeight();
     
     let totalWeight = 0;
     if (isDynamicWeight) {
@@ -1348,13 +1393,7 @@ function getSectorAtAngle(angleDeg) {
     if (!items || items.length === 0) return 0;
     
     const targetAngle = ((270 - angleDeg) + 360) % 360;
-    const isDynamicWeight = (
-        currentStep === 1 || 
-        currentStep === 11 || 
-        (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
-        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
-    );
+    const isDynamicWeight = checkIsDynamicWeight();
 
     if (isDynamicWeight) {
         const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
@@ -1413,13 +1452,7 @@ function spinWheel() {
     const items = getCurrentItems();
     const numSectors = items.length;
 
-    const isDynamicWeight = (
-        currentStep === 1 || 
-        currentStep === 11 || 
-        (currentStep >= 5 && currentStep <= 10) || 
-        (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
-        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11].includes(currentSubStep))
-    );
+    const isDynamicWeight = checkIsDynamicWeight();
 
     const extraRotations = 5 + Math.floor(Math.random() * 4);
     
@@ -2027,17 +2060,38 @@ function getPlayerOVR() {
     
     const mapStat = (val) => Math.round(35 + val * 6.4);
     
-    const stats = [
-        mapStat(speed),
-        mapStat(finishing),
-        mapStat(dribbling),
-        mapStat(passing),
-        mapStat(strength),
-        mapStat(defending)
-    ];
+    const sSpd = mapStat(speed);
+    const sFin = mapStat(finishing);
+    const sDri = mapStat(dribbling);
+    const sPas = mapStat(passing);
+    const sStr = mapStat(strength);
+    const sDef = mapStat(defending);
     
-    const avg = stats.reduce((sum, s) => sum + s, 0) / 6;
-    return Math.max(45, Math.min(99, Math.round(avg)));
+    const pos = selectedPosition ? selectedPosition.name : "Meio-Campo";
+    
+    let ovr = 0;
+    
+    if (["Centroavante", "Ponta Esquerda", "Ponta Direita"].includes(pos)) {
+        // Attacker: High finishing, speed, dribbling. Low defense (5%).
+        ovr = (sSpd * 0.25) + (sFin * 0.25) + (sDri * 0.25) + (sPas * 0.10) + (sStr * 0.10) + (sDef * 0.05);
+    } else if (pos === "Zagueiro" || pos === "Lateral Esquerdo" || pos === "Lateral Direito") {
+        // Defender: High defense (35%), strength (20%). Low finishing (5%).
+        ovr = (sDef * 0.35) + (sStr * 0.20) + (sSpd * 0.15) + (sPas * 0.15) + (sDri * 0.10) + (sFin * 0.05);
+    } else if (pos === "Meia-Armador") {
+        // Attacking Midfielder: High passing, dribbling. Low defense (5%).
+        ovr = (sPas * 0.30) + (sDri * 0.25) + (sSpd * 0.15) + (sFin * 0.15) + (sStr * 0.10) + (sDef * 0.05);
+    } else if (pos === "Volante") {
+        // Defensive Midfielder: High defense, strength, passing. Low finishing (5%).
+        ovr = (sDef * 0.30) + (sStr * 0.25) + (sPas * 0.20) + (sSpd * 0.10) + (sDri * 0.10) + (sFin * 0.05);
+    } else if (pos === "Goleiro") {
+        // Goalkeeper: High reaction (speed), diving (dribbling), defense, jumping (finishing).
+        ovr = (sSpd * 0.25) + (sDri * 0.25) + (sDef * 0.20) + (sFin * 0.15) + (sPas * 0.10) + (sStr * 0.05);
+    } else {
+        // Central Midfielder (Default): Balanced
+        ovr = (sPas * 0.25) + (sDef * 0.20) + (sStr * 0.15) + (sSpd * 0.15) + (sDri * 0.15) + (sFin * 0.10);
+    }
+    
+    return Math.max(45, Math.min(99, Math.round(ovr)));
 }
 
 function getFUTStats() {
@@ -2349,8 +2403,24 @@ function showFinalJourney() {
     }
 
     if (summaryBallonDor) {
-        summaryBallonDor.innerText = ganhouBolaDeOuro ? `${bolaDeOuroCount}x 🏆` : "0x 🏆";
-        summaryBallonDor.style.color = ganhouBolaDeOuro ? "#fef08a" : "#cbd5e1";
+        if (ganhouBolaDeOuro) {
+            summaryBallonDor.innerText = `${bolaDeOuroCount}x 🏆`;
+            summaryBallonDor.style.color = "#fef08a";
+        } else if (selectedBallonDorPlacement) {
+            let placeText = "";
+            if (currentLang === 'pt') placeText = `${selectedBallonDorPlacement}º Lugar`;
+            else if (currentLang === 'en') placeText = `${formatOrdinal(selectedBallonDorPlacement)} Place`;
+            else if (currentLang === 'es') placeText = `${selectedBallonDorPlacement}º Lugar`;
+            else if (currentLang === 'ja') placeText = `${selectedBallonDorPlacement}位`;
+            else if (currentLang === 'zh') placeText = `第${selectedBallonDorPlacement}名`;
+            else placeText = `#${selectedBallonDorPlacement}`;
+            
+            summaryBallonDor.innerText = placeText;
+            summaryBallonDor.style.color = "#c084fc"; // Elegant violet for high placement
+        } else {
+            summaryBallonDor.innerText = "0x 🏆";
+            summaryBallonDor.style.color = "#cbd5e1";
+        }
     }
 
     let careerJourneyText = "";
@@ -2519,6 +2589,22 @@ function showFinalJourney() {
         awardsStory = template.ballonDorWon
             .replace("{bCount}", bolaDeOuroCount)
             .replace("{timesText}", timesText);
+    } else if (selectedBallonDorPlacement) {
+        let placeDesc = "";
+        if (currentLang === 'pt') {
+            placeDesc = `Embora não tenha conquistado o troféu, alcançou o topo do futebol mundial ao ficar em <strong>${selectedBallonDorPlacement}º lugar</strong> na votação da Bola de Ouro, consolidando-se entre os melhores jogadores do planeta.`;
+        } else if (currentLang === 'en') {
+            placeDesc = `Although he didn't win the trophy, he reached the pinnacle of world football by finishing in <strong>${formatOrdinal(selectedBallonDorPlacement)} place</strong> in the Ballon d'Or voting, cementing himself among the best players on the planet.`;
+        } else if (currentLang === 'es') {
+            placeDesc = `Aunque no ganó el trofeo, alcanzó la cima del fútbol mundial al terminar en <strong>${selectedBallonDorPlacement}º lugar</strong> en la votación del Balón de Oro, consolidándose entre los mejores jugadores del planeta.`;
+        } else if (currentLang === 'ja') {
+            placeDesc = `トロフィーの獲得こそ逃したものの、バロンドール投票で<strong>${selectedBallonDorPlacement}位</strong>に入り、地球上で最高の選手の一人としてその名を世界に轟かせました。`;
+        } else if (currentLang === 'zh') {
+            placeDesc = `虽然未能捧起奖杯，但他凭借在金球奖评选中荣获<strong>第${selectedBallonDorPlacement}名</strong>的佳绩达到了世界足坛的顶峰，将自己的名字镌刻在星球最佳球员之列。`;
+        } else {
+            placeDesc = `Finished in #${selectedBallonDorPlacement} place in the Ballon d'Or voting.`;
+        }
+        awardsStory = placeDesc;
     } else {
         awardsStory = template.ballonDorNotWon;
     }
@@ -2873,6 +2959,7 @@ function resetWholeJourney() {
     titulosCopaMundoCount = 0;
     ganhouBolaDeOuro = false;
     bolaDeOuroCount = 0;
+    selectedBallonDorPlacement = null;
     selectedCareerGoals = 0;
     selectedCareerAssists = 0;
     selectedGoalsRange = null;
@@ -4081,9 +4168,30 @@ function getProSeasonsOptions() {
 
 // 3. Dynamic Chances
 function getNationalTeamCallUpChance() {
-    const avgAttr = getPlayerAverageAttribute();
-    // Base chance from attributes: 10% to 64%
-    let chance = 10 + (avgAttr - 1) * 6;
+    const countryName = selectedCountry.name;
+    const strength = getNationalTeamStrength(countryName); // 1, 3, 5
+    const avgAttr = getPlayerAverageAttribute(); // 1 to 10
+    
+    let baseChance = 10;
+    if (strength === 1) {
+        // Weak national team: very easy if OVR is decent
+        if (avgAttr >= 5.0) baseChance = 85;
+        else if (avgAttr >= 3.0) baseChance = 55;
+        else baseChance = 25;
+    } else if (strength === 3) {
+        // Medium national team: moderately easy
+        if (avgAttr >= 7.0) baseChance = 75;
+        else if (avgAttr >= 5.0) baseChance = 45;
+        else baseChance = 15;
+    } else {
+        // Strong national team (strength = 5): very hard, requires elite OVR
+        if (avgAttr >= 8.5) baseChance = 80;
+        else if (avgAttr >= 7.0) baseChance = 40;
+        else if (avgAttr >= 5.0) baseChance = 15;
+        else baseChance = 5;
+    }
+    
+    let chance = baseChance;
     
     // Add cumulative bonuses from career history achievements
     let bonus = 0;
@@ -4314,8 +4422,25 @@ function getWorldCupParticipationChance() {
     else if (strength === 3) baseChance = 50;
     
     const avgAttr = getPlayerAverageAttribute();
-    const bonus = (avgAttr - 1) * 2.5; // Up to +22.5%
-    return Math.max(5, Math.min(98, Math.round(baseChance + bonus)));
+    const ovrBonus = (avgAttr - 1) * 3; // Up to +27%
+    
+    // Relevant titles bonus
+    let titleBonus = 0;
+    careerHistory.forEach(record => {
+        if (record.wonLeague && record.leagueTitles > 0) titleBonus += record.leagueTitles * 1.5;
+        if (record.wonContinental && record.continentalTitles > 0) {
+            const tournament = record.continentalTournament || "";
+            if (tournament === "UEFA Champions League" || tournament === "Copa Libertadores") {
+                titleBonus += record.continentalTitles * 4;
+            } else {
+                titleBonus += record.continentalTitles * 1.5;
+            }
+        }
+        if (record.wonWorldClubCup && record.worldClubCupTitles > 0) titleBonus += record.worldClubCupTitles * 2;
+    });
+    titleBonus = Math.min(20, titleBonus); // Cap title bonus at +20%
+    
+    return Math.max(5, Math.min(98, Math.round(baseChance + ovrBonus + titleBonus)));
 }
 
 function getContinentalSelectionChance() {
@@ -4339,17 +4464,53 @@ function getWorldCupWinChance() {
     
     const avgAttr = getPlayerAverageAttribute();
     const bonus = (avgAttr - 1) * 2; // Up to +18%
-    return Math.max(1, Math.min(90, Math.round(baseChance + bonus)));
+    
+    let chance = baseChance + bonus;
+    
+    // Decrease chance significantly if NOT a strong European or South American country
+    const strongEuroSouthAm = [
+        "Brasil", "Argentina", "França", "Alemanha", "Espanha", "Itália", "Reino Unido", 
+        "Colômbia", "Uruguai", "Croácia", "Portugal", "Holanda", "Bélgica", "Ucrânia"
+    ];
+    
+    if (!strongEuroSouthAm.includes(countryName)) {
+        // Limit non-traditional strong countries to a 2% max chance of winning the World Cup
+        chance = Math.min(2, chance * 0.10);
+    }
+    
+    return Math.max(1, Math.min(90, Math.round(chance)));
 }
 
 function getBallonDorChance() {
     const avgAttr = getPlayerAverageAttribute();
-    let chance = 1;
-    if (avgAttr >= 9.0) chance = 75;
-    else if (avgAttr >= 7.0) chance = 40;
-    else if (avgAttr >= 5.0) chance = 15;
+    let baseChance = 1;
+    if (avgAttr >= 9.0) baseChance = 75;
+    else if (avgAttr >= 7.0) baseChance = 40;
+    else if (avgAttr >= 5.0) baseChance = 15;
     
-    // World Cup impact (balanced, not exaggerated)
+    // Count important/relevant titles
+    let importantTitles = 0;
+    careerHistory.forEach(r => {
+        if (r.wonLeague && r.leagueTitles > 0) importantTitles += r.leagueTitles;
+        if (r.wonContinental && r.continentalTitles > 0) importantTitles += r.continentalTitles;
+        if (r.wonWorldClubCup && r.worldClubCupTitles > 0) importantTitles += r.worldClubCupTitles;
+        if (r.wonIntercontinental && r.intercontinentalTitles > 0) importantTitles += r.intercontinentalTitles;
+    });
+    if (ganhouCopaMundo && titulosCopaMundoCount > 0) {
+        importantTitles += titulosCopaMundoCount * 2; // World Cup counts double
+    }
+    
+    // Apply penalty if very few important titles are won (highly realistic)
+    let titleMultiplier = 1.0;
+    if (importantTitles === 0) titleMultiplier = 0.12;
+    else if (importantTitles === 1) titleMultiplier = 0.35;
+    else if (importantTitles === 2) titleMultiplier = 0.60;
+    else if (importantTitles === 3) titleMultiplier = 0.80;
+    else if (importantTitles === 4) titleMultiplier = 0.92;
+    
+    let chance = baseChance * titleMultiplier;
+    
+    // World Cup specific bonuses (participation + win)
     if (jogouCopaMundo) {
         // Participation bonus: +3% per World Cup played, capped at +10%
         const participationBonus = Math.min(10, (quantidadeCopasDisputadas || 1) * 3);
@@ -4362,8 +4523,61 @@ function getBallonDorChance() {
         }
     }
     
-    // Capped between 1% and 95% to maintain excitement and avoid absolute certainty
+    // Capped between 1% and 95% to maintain excitement
     return Math.max(1, Math.min(95, Math.round(chance)));
+}
+
+function formatOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function getBallonDorPlacementOptions() {
+    const bChance = getBallonDorChance();
+    
+    let wTop3 = 10;
+    let wTop5 = 15;
+    let wTop10 = 25;
+    let wTop20 = 35;
+    let wTop30 = 15;
+    
+    if (bChance >= 75) {
+        // Elite player who narrowly missed the Ballon d'Or
+        wTop3 = 60;
+        wTop5 = 25;
+        wTop10 = 11;
+        wTop20 = 3;
+        wTop30 = 1;
+    } else if (bChance >= 50) {
+        // High quality player
+        wTop3 = 30;
+        wTop5 = 35;
+        wTop10 = 20;
+        wTop20 = 12;
+        wTop30 = 3;
+    } else if (bChance >= 40) {
+        // Good quality player
+        wTop3 = 15;
+        wTop5 = 25;
+        wTop10 = 35;
+        wTop20 = 20;
+        wTop30 = 5;
+    }
+    
+    const labelTop3 = currentLang === 'pt' ? '2º a 3º lugar' : currentLang === 'en' ? '2nd to 3rd Place' : currentLang === 'es' ? '2º al 3º lugar' : currentLang === 'ja' ? '2位〜3位' : '第2至3名';
+    const labelTop5 = currentLang === 'pt' ? '4º a 5º lugar' : currentLang === 'en' ? '4th to 5th Place' : currentLang === 'es' ? '4º al 5º lugar' : currentLang === 'ja' ? '4位〜5位' : '第4至5名';
+    const labelTop10 = currentLang === 'pt' ? '6º a 10º lugar' : currentLang === 'en' ? '6th to 10th Place' : currentLang === 'es' ? '6º al 10º lugar' : currentLang === 'ja' ? '6位〜10位' : '第6至10名';
+    const labelTop20 = currentLang === 'pt' ? '11º a 20º lugar' : currentLang === 'en' ? '11th to 20th Place' : currentLang === 'es' ? '11º al 20º lugar' : currentLang === 'ja' ? '11位〜20位' : '第11至20名';
+    const labelTop30 = currentLang === 'pt' ? '21º a 30º lugar' : currentLang === 'en' ? '21st to 30th Place' : currentLang === 'es' ? '21º al 30º lugar' : currentLang === 'ja' ? '21位〜30位' : '第21至30名';
+    
+    return [
+        { name: labelTop3, min: 2, max: 3, weight: wTop3, color: "#4c0519" }, // Dark rose
+        { name: labelTop5, min: 4, max: 5, weight: wTop5, color: "#311042" }, // Dark purple
+        { name: labelTop10, min: 6, max: 10, weight: wTop10, color: "#1e1b4b" }, // Dark blue
+        { name: labelTop20, min: 11, max: 20, weight: wTop20, color: "#0f172a" }, // Slate
+        { name: labelTop30, min: 21, max: 30, weight: wTop30, color: "#022c22" } // Dark green
+    ];
 }
 
 // 4. Goals and Assists Bracket Generators
@@ -4647,13 +4861,37 @@ function handleInternationalSubStepResult(winner) {
                 queueTransition(() => { currentSubStep = 10; startCareerSubStep(); });
             } else {
                 bolaDeOuroCount = 0;
-                queueTransition(() => { currentSubStep = 12; startCareerSubStep(); });
+                const bDorChance = getBallonDorChance();
+                if (bDorChance >= 35) {
+                    queueTransition(() => { currentSubStep = 13; startCareerSubStep(); });
+                } else {
+                    queueTransition(() => { currentSubStep = 12; startCareerSubStep(); });
+                }
             }
             break;
             
         case 10: // Quantas Bolas de Ouro?
             bolaDeOuroCount = winner.value;
             statusText.innerText = `Consagrado com ${bolaDeOuroCount} ${bolaDeOuroCount === 1 ? 'Bola de Ouro' : 'Bolas de Ouro'}!`;
+            queueTransition(() => { currentSubStep = 12; startCareerSubStep(); });
+            break;
+
+        case 13: // Melhor Colocação na Bola de Ouro
+            const minPlace = winner.min;
+            const maxPlace = winner.max;
+            selectedBallonDorPlacement = Math.floor(Math.random() * (maxPlace - minPlace + 1)) + minPlace;
+            
+            let placingAlert = "";
+            if (currentLang === 'pt') placingAlert = `${selectedBallonDorPlacement}º lugar`;
+            else if (currentLang === 'en') placingAlert = `${formatOrdinal(selectedBallonDorPlacement)} place`;
+            else if (currentLang === 'es') placingAlert = `${selectedBallonDorPlacement}º lugar`;
+            else if (currentLang === 'ja') placingAlert = `${selectedBallonDorPlacement}位`;
+            else if (currentLang === 'zh') placingAlert = `第${selectedBallonDorPlacement}名`;
+            else placingAlert = `#${selectedBallonDorPlacement}`;
+            
+            statusText.innerText = currentLang === 'pt' 
+                ? `Melhor colocação na Bola de Ouro: ${placingAlert}!` 
+                : `Best Ballon d'Or placement: ${placingAlert}!`;
             queueTransition(() => { currentSubStep = 12; startCareerSubStep(); });
             break;
             
