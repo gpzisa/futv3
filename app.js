@@ -4380,11 +4380,18 @@ function getGoalsOptions() {
     else if (position === "Zagueiro") baseGoalsPerYear = 1.2;
     else if (position === "Goleiro") baseGoalsPerYear = 0.05;
     
+    // Parse interconnected attributes: Finishing (50%), Speed (20%), Dribbling (20%), Strength (10%)
     const finishingLevel = parseInt(selectedFinishing.name.split("/")[0]) || 5;
-    const finishingMultiplier = 0.2 + (finishingLevel / 10) * 1.5;
+    const speedLevel = parseInt(selectedSpeed.name.split("/")[0]) || 5;
+    const dribblingLevel = parseInt(selectedDribbling.name.split("/")[0]) || 5;
+    const strengthLevel = parseInt(selectedStrength.name.split("/")[0]) || 5;
+    
+    const compositeGoalsScore = (finishingLevel * 0.50) + (speedLevel * 0.20) + (dribblingLevel * 0.20) + (strengthLevel * 0.10);
+    const goalsMultiplier = 0.2 + (compositeGoalsScore / 10) * 1.5;
     
     const seasons = parseInt(selectedSeasons.name.split(" ")[0]) || 15;
-    const expectedGoals = baseGoalsPerYear * finishingMultiplier * seasons;
+    // 12% nerf applied to expected goals
+    const expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88;
     
     if (position === "Goleiro") {
         return [
@@ -4428,11 +4435,18 @@ function getAssistsOptions() {
     else if (position === "Zagueiro") baseAssistsPerYear = 0.8;
     else if (position === "Goleiro") baseAssistsPerYear = 0.08;
     
+    // Parse interconnected attributes: Passing (50%), Dribbling (20%), Speed (20%), Strength (10%)
     const passingLevel = parseInt(selectedPassing.name.split("/")[0]) || 5;
-    const passingMultiplier = 0.2 + (passingLevel / 10) * 1.5;
+    const dribblingLevel = parseInt(selectedDribbling.name.split("/")[0]) || 5;
+    const speedLevel = parseInt(selectedSpeed.name.split("/")[0]) || 5;
+    const strengthLevel = parseInt(selectedStrength.name.split("/")[0]) || 5;
+    
+    const compositeAssistsScore = (passingLevel * 0.50) + (dribblingLevel * 0.20) + (speedLevel * 0.20) + (strengthLevel * 0.10);
+    const assistsMultiplier = 0.2 + (compositeAssistsScore / 10) * 1.5;
     
     const seasons = parseInt(selectedSeasons.name.split(" ")[0]) || 15;
-    const expectedAssists = baseAssistsPerYear * passingMultiplier * seasons;
+    // 12% nerf applied to expected assists
+    const expectedAssists = baseAssistsPerYear * assistsMultiplier * seasons * 0.88;
     
     if (position === "Goleiro") {
         return [
