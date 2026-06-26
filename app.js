@@ -4390,8 +4390,17 @@ function getGoalsOptions() {
     const goalsMultiplier = 0.2 + (compositeGoalsScore / 10) * 1.5;
     
     const seasons = parseInt(selectedSeasons.name.split(" ")[0]) || 15;
-    // 12% nerf applied to expected goals
-    const expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88;
+    
+    // Position category multiplier: attack (1.0), midfield (0.55), defense/goalkeeper (0.22)
+    let positionMultiplier = 1.0;
+    if (["Meia-Armador", "Meio-Campo", "Volante"].includes(position)) {
+        positionMultiplier = 0.55;
+    } else if (["Lateral Esquerdo", "Lateral Direito", "Zagueiro", "Goleiro"].includes(position)) {
+        positionMultiplier = 0.22;
+    }
+    
+    // 12% nerf and position-based multiplier applied to expected goals
+    const expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88 * positionMultiplier;
     
     if (position === "Goleiro") {
         return [
