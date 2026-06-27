@@ -520,7 +520,11 @@ const translatedTerms = {
         "China": { en: "China", es: "China", ja: "中国", zh: "中国" },
         "Índia": { en: "India", es: "India", ja: "インド", zh: "印度" },
         "Austrália": { en: "Australia", es: "Australia", ja: "オーストラリア", zh: "澳大利亚" },
-        "Ucrânia": { en: "Ukraine", es: "Ucrania", ja: "ウクライナ", zh: "乌克兰" }
+        "Ucrânia": { en: "Ukraine", es: "Ucrania", ja: "ウクライナ", zh: "乌克兰" },
+        "Marrocos": { en: "Morocco", es: "Marruecos", ja: "モロッコ", zh: "摩洛哥" },
+        "Senegal": { en: "Senegal", es: "Senegal", ja: "セネガル", zh: "塞内加尔" },
+        "Argélia": { en: "Algeria", es: "Argelia", ja: "アルジェリア", zh: "阿尔及利亚" },
+        "Camarões": { en: "Cameroon", es: "Camerún", ja: "カメルーン", zh: "喀麦隆" }
     },
     positions: {
         "Goleiro": { en: "Goalkeeper", es: "Portero", ja: "ゴールキーパー", zh: "守门员" },
@@ -570,6 +574,8 @@ const translatedTerms = {
         "Desejo de ser Treinador": { en: "Desire to Coach", es: "Deseo de ser Entrenador", ja: "指導者の志", zh: "转型教练的志向" },
         "Desgaste Mental 🧠": { en: "Mental Exhaustion 🧠", es: "Desgaste Mental 🧠", ja: "精神的疲労 🧠", zh: "精神疲惫 🧠" },
         "Desgaste Mental": { en: "Mental Exhaustion", es: "Desgaste Mental", ja: "精神的疲労", zh: "精神疲惫" },
+        "Falecimento ⚰️": { en: "Death ⚰️", es: "Fallecimiento ⚰️", ja: "逝去 ⚰️", zh: "离世 ⚰️" },
+        "Falecimento": { en: "Death", es: "Fallecimiento", ja: "逝去", zh: "离世" },
         "Lesão Crônica": { en: "Chronic Injury", es: "Lesión Crónica", ja: "慢性的な怪我", zh: "慢性伤病" },
         "Falta de Motivação": { en: "Lack of Motivation", es: "Falta de Motivación", ja: "モチベーションの低下", zh: "缺乏动力" },
         "Proposta de Transição para Treinador": { en: "Coaching Transition Offer", es: "Propuesta de Transición a Entrenador", ja: "指導者への転身オファー", zh: "转型教练邀请" },

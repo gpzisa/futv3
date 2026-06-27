@@ -224,6 +224,13 @@ function getTranslatedRetirementReasonName(reasonName) {
             es: "Desgaste Mental 🧠",
             ja: "精神的疲労 🧠",
             zh: "精神疲惫 🧠"
+        },
+        "Falecimento ⚰️": {
+            pt: "Falecimento ⚰️",
+            en: "Death ⚰️",
+            es: "Fallecimiento ⚰️",
+            ja: "逝去 ⚰️",
+            zh: "离世 ⚰️"
         }
     };
     if (names[reasonName]) {
@@ -280,7 +287,11 @@ const countryData = {
         { name: "Egito", weight: 2.2, desc: "a terra dos faraós, dona de pirâmides monumentais milenares, templos sagrados e cortada pelo histórico Rio Nilo" },
         { name: "R.D. Congo", weight: 3.2, desc: "o coração verde do continente, com a segunda maior floresta tropical do planeta e uma enorme diversidade de vida selvagem" },
         { name: "África do Sul", weight: 1.0, desc: "a nação arco-íris, dona de uma incrível diversidade cultural, praias de surfe espetaculares e reservas de safári ricas em fauna" },
-        { name: "Quênia", weight: 1.4, desc: "famoso por seus safáris na savana do Masai Mara, vales do Rift deslumbrantes e atletas de corrida que dominam o cenário mundial" }
+        { name: "Quênia", weight: 1.4, desc: "famoso por seus safáris na savana do Masai Mara, vales do Rift deslumbrantes e atletas de corrida que dominam o cenário mundial" },
+        { name: "Marrocos", weight: 0.8, desc: "a terra do deserto do Saara, das medinas históricas e da seleção dos Leones do Atlas que fez história na Copa do Mundo" },
+        { name: "Senegal", weight: 0.6, desc: "a terra da Teranga, da vibrante música mbalax e de uma geração histórica de atletas de futebol extremamente velozes e físicos" },
+        { name: "Argélia", weight: 1.0, desc: "a terra dos guerreiros do deserto, de culinária mediterrânea rica e de um futebol caracterizado pela enorme habilidade técnica e raça" },
+        { name: "Camarões", weight: 0.9, desc: "a nação dos leões indomáveis, dona de florestas equatoriais densas e de uma tradição riquíssima de atacantes históricos e lendários" }
     ],
     "América do Norte": [
         { name: "Estados Unidos", weight: 3.7, desc: "uma potência globalmente influente, repleta de metrópoles icônicas, parks nacionais colossais e mistura de culturas do mundo inteiro" },
@@ -913,7 +924,7 @@ function checkIsDynamicWeight() {
         currentStep === 11 || 
         (currentStep >= 5 && currentStep <= 10) || 
         (currentStep === 13 && [0, 1, 3, 5, 7, 9, 10, 12, 13, 15, 17].includes(currentSubStep)) ||
-        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11, 13].includes(currentSubStep))
+        (currentStep === 14 && [0, 1, 3, 5, 7, 8, 9, 10, 11, 12, 13].includes(currentSubStep))
     );
 }
 
@@ -949,12 +960,12 @@ function getCurrentItems() {
             case 6: return getNumberOptions(selectedCareerYears);
             case 7: return getSimNaoOptions(getContinentalWinChance());
             case 8: return getNumberOptions(selectedCareerYears);
-            case 9: return getSimNaoOptions(60);
+            case 9: return getSimNaoOptions(getAttributeImprovementChance());
             case 10: return getAttributeImprovementCountOptions();
             case 11: return getAttributeOptions();
             case 12: return getContinentalTournamentOptions();
             case 13: return getSimNaoOptions(getIntercontinentalWinChance());
-            case 14: return getNumberOptions(intercontinentalEligibleCount);
+            case 14: return getIntercontinentalCountOptions(intercontinentalEligibleCount);
             case 15: return getSimNaoOptions(getWorldClubCupWinChance());
             case 16: return getNumberOptions(cwcEligibleCount);
             case 17: return getMarketValueOptions();
@@ -2007,7 +2018,7 @@ function activateBox(boxId) {
 
 function getCountryFlag(countryName) {
     const flags = {
-        "Nigéria": "🇳🇬", "Etiópia": "🇪🇹", "Egito": "🇪🇬", "R.D. Congo": "🇨🇩", "África do Sul": "🇿🇦", "Quênia": "🇰🇪",
+        "Nigéria": "🇳🇬", "Etiópia": "🇪🇹", "Egito": "🇪🇬", "R.D. Congo": "🇨🇩", "África do Sul": "🇿🇦", "Quênia": "🇰🇪", "Marrocos": "🇲🇦", "Senegal": "🇸🇳", "Argélia": "🇩🇿", "Camarões": "🇨🇲",
         "Estados Unidos": "🇺🇸", "México": "🇲🇽", "Canadá": "🇨🇦", "Guatemala": "🇬🇹", "Cuba": "🇨🇺",
         "Brasil": "🇧🇷", "Colômbia": "🇨🇴", "Argentina": "🇦🇷", "Peru": "🇵🇪", "Venezuela": "🇻🇪", "Chile": "🇨🇱",
         "Índia": "🇮🇳", "China": "🇨🇳", "Indonésia": "🇮🇩", "Paquistão": "🇵🇰", "Bangladesh": "🇧🇩", "Japão": "🇯🇵", "Filipinas": "🇵🇭",
@@ -2849,18 +2860,19 @@ function showFinalJourney() {
             const translatedReason = translateTerm("retirementReasons", reasonName) || reasonName;
             
             let retirementAgeText = "";
+            const isDeath = (reasonName === "Falecimento ⚰️");
             if (currentLang === 'pt') {
-                retirementAgeText = ` (se aposentou com ${currentPlayerAge} anos)`;
+                retirementAgeText = isDeath ? ` (faleceu aos ${currentPlayerAge} anos)` : ` (se aposentou com ${currentPlayerAge} anos)`;
             } else if (currentLang === 'en') {
-                retirementAgeText = ` (retired at ${currentPlayerAge} y/o)`;
+                retirementAgeText = isDeath ? ` (passed away at ${currentPlayerAge} y/o)` : ` (retired at ${currentPlayerAge} y/o)`;
             } else if (currentLang === 'es') {
-                retirementAgeText = ` (se retiró con ${currentPlayerAge} años)`;
+                retirementAgeText = isDeath ? ` (falleció a los ${currentPlayerAge} años)` : ` (se retiró con ${currentPlayerAge} años)`;
             } else if (currentLang === 'ja') {
-                retirementAgeText = ` (${currentPlayerAge}歳で引退)`;
+                retirementAgeText = isDeath ? ` (${currentPlayerAge}歳で逝去)` : ` (${currentPlayerAge}歳で引退)`;
             } else if (currentLang === 'zh') {
-                retirementAgeText = ` (在 ${currentPlayerAge} 岁退休)`;
+                retirementAgeText = isDeath ? ` (在 ${currentPlayerAge} 岁时逝世)` : ` (在 ${currentPlayerAge} 岁退休)`;
             } else {
-                retirementAgeText = ` (retired at ${currentPlayerAge})`;
+                retirementAgeText = isDeath ? ` (passed away at ${currentPlayerAge})` : ` (retired at ${currentPlayerAge})`;
             }
             
             summaryRetirement.innerText = translatedReason + retirementAgeText;
@@ -3046,7 +3058,7 @@ function getHomeLeague() {
     if (["Colômbia", "Peru", "Venezuela", "Chile"].includes(country)) return "🇦🇷 Liga Profesional (ARG)";
     
     // Africa -> Ligue 1 (FRA) (Traditional gateway for African players to Europe)
-    if (["Nigéria", "Etiópia", "Egito", "R.D. Congo", "África do Sul", "Quênia"].includes(country)) return "🇫🇷 Ligue 1 (FRA)";
+    if (["Nigéria", "Etiópia", "Egito", "R.D. Congo", "África do Sul", "Quênia", "Marrocos", "Senegal", "Argélia", "Camarões"].includes(country)) return "🇫🇷 Ligue 1 (FRA)";
     
     // Asia & Oceania -> J1 League (JPN) (Top AFC league)
     if (["Índia", "China", "Indonésia", "Paquistão", "Bangladesh", "Filipinas", "Austrália", "Papua Nova Guiné", "Nova Zelândia", "Fiji"].includes(country)) return "🇯🇵 J1 League (JPN)";
@@ -3059,7 +3071,7 @@ function getHomeLeague() {
 
 function getLeagueOptionsWithWeights() {
     const homeLeague = getHomeLeague();
-    const sumAttr = getPlayerAverageAttribute() * 6;
+    const sumAttr = getPlayerWeightedAttributeScore() * 6;
     
     return leagues.map(league => {
         const isEliteLeague = [
@@ -3095,7 +3107,22 @@ function getLeagueOptionsWithWeights() {
 }
 
 function getTeamOptionsWithWeights(rawTeams, leagueName) {
-    const sumAttr = getPlayerAverageAttribute() * 6;
+    const sumAttr = getPlayerWeightedAttributeScore() * 6;
+    
+    // Calculate trophy multiplier based on previous club's achievements
+    let trophyMultiplier = 1.0;
+    if (careerHistory.length > 0) {
+        const prevRecord = careerHistory[careerHistory.length - 1];
+        let prevImportantTitles = 0;
+        if (prevRecord.wonLeague && prevRecord.leagueTitles > 0) prevImportantTitles += prevRecord.leagueTitles;
+        if (prevRecord.wonContinental && prevRecord.continentalTitles > 0) prevImportantTitles += prevRecord.continentalTitles * 1.5;
+        if (prevRecord.wonWorldClubCup && prevRecord.worldClubCupTitles > 0) prevImportantTitles += prevRecord.worldClubCupTitles * 1.5;
+        if (prevRecord.wonIntercontinental && prevRecord.intercontinentalTitles > 0) prevImportantTitles += prevRecord.intercontinentalTitles * 1.0;
+        
+        if (prevImportantTitles > 0) {
+            trophyMultiplier += prevImportantTitles * 0.25; // +25% boost per trophy
+        }
+    }
     
     return rawTeams.map(team => {
         let teamObj = team;
@@ -3134,6 +3161,11 @@ function getTeamOptionsWithWeights(rawTeams, leagueName) {
             else if (strength === 3) weight = 15;
             else if (strength === 2) weight = 12;
             else weight = 10;
+        }
+        
+        // Apply trophy multiplier for 3, 4, and 5 star teams to make it easier to transfer to them
+        if (strength >= 3) {
+            weight = Math.round(weight * trophyMultiplier);
         }
         
         return { ...teamObj, weight: weight };
@@ -3332,6 +3364,27 @@ function getPlayerAverageAttribute() {
     return (speed + finishing + dribbling + passing + strength + defending) / 6;
 }
 
+function getPlayerWeightedAttributeScore() {
+    const isDefender = selectedPosition && ["Zagueiro", "Lateral Esquerdo", "Lateral Direito"].includes(selectedPosition.name);
+    const isGoleiro = selectedPosition && selectedPosition.name === "Goleiro";
+    
+    const speed = parseInt(selectedSpeed.name.split("/")[0]) || 5;
+    const finishing = parseInt(selectedFinishing.name.split("/")[0]) || 5;
+    const dribbling = parseInt(selectedDribbling.name.split("/")[0]) || 5;
+    const passing = parseInt(selectedPassing.name.split("/")[0]) || 5;
+    const strength = parseInt(selectedStrength.name.split("/")[0]) || 5;
+    const defending = parseInt(selectedDefending.name.split("/")[0]) || 5;
+    
+    if (isDefender) {
+        // Defenders: defense has much higher weight (40% defending, 60% others combined)
+        const othersAvg = (speed + finishing + dribbling + passing + strength) / 5;
+        return defending * 0.40 + othersAvg * 0.60;
+    }
+    
+    // Default or Goalkeeper: average of all status
+    return (speed + finishing + dribbling + passing + strength + defending) / 6;
+}
+
 // 4.5. Position-Based Attribute Weight Adjuster
 function getPositionAttributeTiers(attributeKey) {
     if (!selectedPosition) return attributeTiers;
@@ -3481,10 +3534,31 @@ function getIntercontinentalWinChance() {
         }
     }
     
-    const avgSkill = getPlayerAverageAttribute();
+    // Add boost if team is good/very good
+    if (strength === 5) baseChance += 10;
+    else if (strength === 4) baseChance += 5;
+    
+    const avgSkill = getPlayerWeightedAttributeScore();
     const attrBonus = (avgSkill - 1) * 2;
     
-    return Math.min(95, Math.round(baseChance + attrBonus));
+    return Math.min(98, Math.round(baseChance + attrBonus));
+}
+
+function getIntercontinentalCountOptions(max) {
+    const options = [];
+    const strength = selectedCareerTeam ? getTeamStrength(selectedCareerTeam.name) : 3;
+    
+    for (let i = 1; i <= max; i++) {
+        // If team is good (strength >= 4), weight higher numbers more!
+        let weight = 1;
+        if (strength === 5) {
+            weight = i * 5;
+        } else if (strength === 4) {
+            weight = i * 2.5;
+        }
+        options.push({ name: `${i}x`, value: i, weight: Math.max(1, Math.round(weight)) });
+    }
+    return options;
 }
 
 function getWorldClubCupWinChance() {
@@ -3617,12 +3691,13 @@ function getNumberOptions(max) {
 
 function getRetirementReasonOptions() {
     const options = [
-        { name: "Dores Crônicas 🤕", desc: "dores crônicas incessantes nos joelhos e articulações, tornando o sacrifício físico diário insuportável", color: "#4c141d" },
-        { name: "Lesão Grave 🏥", desc: "uma grave lesão de ligamento na pré-temporada, acelerando a decisão de pendurar as chuteiras", color: "#4c2d14" },
-        { name: "Escolha Própria 🚶‍♂️", desc: "escolha própria de sair por cima, querendo aproveitar o tempo livre com a família enquanto ainda está no auge físico", color: "#143d25" },
-        { name: "Idade Avançada 👴", desc: "idade avançada refletindo no ritmo físico, preferindo dar espaço para os jovens talentos brilharem", color: "#142d4c" },
-        { name: "Desejo de ser Treinador 📋", desc: "o desejo ardente de iniciar imediatamente os estudos para se tornar treinador de futebol", color: "#2d144c" },
-        { name: "Desgaste Mental 🧠", desc: "desgaste mental acumulado com a rotina pesada de viagens, hotéis e pressões insustentáveis da torcida", color: "#14404c" }
+        { name: "Dores Crônicas 🤕", desc: "dores crônicas incessantes nos joelhos e articulações, tornando o sacrifício físico diário insuportável", color: "#4c141d", weight: 30 },
+        { name: "Lesão Grave 🏥", desc: "uma grave lesão de ligamento na pré-temporada, acelerando a decisão de pendurar as chuteiras", color: "#4c2d14", weight: 30 },
+        { name: "Escolha Própria 🚶‍♂️", desc: "escolha própria de sair por cima, querendo aproveitar o tempo livre com a família enquanto ainda está no auge físico", color: "#143d25", weight: 30 },
+        { name: "Idade Avançada 👴", desc: "idade avançada refletindo no ritmo físico, preferindo dar espaço para os jovens talentos brilharem", color: "#142d4c", weight: 30 },
+        { name: "Desejo de ser Treinador 📋", desc: "o desejo ardente de iniciar imediatamente os estudos para se tornar treinador de futebol", color: "#2d144c", weight: 30 },
+        { name: "Desgaste Mental 🧠", desc: "desgaste mental acumulado com a rotina pesada de viagens, hotéis e pressões insustentáveis da torcida", color: "#14404c", weight: 30 },
+        { name: "Falecimento ⚰️", desc: "falecimento trágico por causas naturais repentinas, deixando o mundo do futebol em luto eterno", color: "#0a0a0a", weight: 2 }
     ];
     
     // If player retires under 35, "Idade Avançada" is not possible
@@ -3631,6 +3706,30 @@ function getRetirementReasonOptions() {
     }
     
     return options;
+}
+
+function getAttributeImprovementChance() {
+    let chance = 50; // Base chance
+    
+    // Check current club strength
+    if (selectedCareerTeam) {
+        const strength = getTeamStrength(selectedCareerTeam.name);
+        if (strength === 5) chance += 20;
+        else if (strength === 4) chance += 15;
+        else if (strength === 3) chance += 8;
+    }
+    
+    // Count titles won in the current contract
+    const currentTitles = (wonLeague ? leagueTitlesCount : 0) + 
+                          (wonCup ? cupTitlesCount : 0) + 
+                          (wonContinental ? continentalTitlesCount : 0) + 
+                          (wonIntercontinental ? intercontinentalTitlesCount : 0) + 
+                          (wonWorldClubCup ? worldClubCupTitlesCount : 0);
+    
+    // Increase chance by +8% per title
+    chance += currentTitles * 8;
+    
+    return Math.max(10, Math.min(95, chance));
 }
 
 function getAttributeImprovementCountOptions() {
@@ -4110,7 +4209,7 @@ function handleCareerSubStepResult(winner) {
 // 1. National Team Strength Classifier
 function getNationalTeamStrength(countryName) {
     const elite = ["Brasil", "Argentina", "França", "Alemanha", "Espanha", "Itália", "Reino Unido"];
-    const competitive = ["Nigéria", "Egito", "México", "Estados Unidos", "Colômbia", "Uruguai", "Croácia", "Portugal", "Holanda", "Bélgica", "Japão", "Ucrânia"];
+    const competitive = ["Nigéria", "Egito", "México", "Estados Unidos", "Colômbia", "Uruguai", "Croácia", "Portugal", "Holanda", "Bélgica", "Japão", "Ucrânia", "Marrocos", "Senegal", "Argélia", "Camarões"];
     if (elite.includes(countryName)) return 5;
     if (competitive.includes(countryName)) return 3;
     return 1;
@@ -4170,7 +4269,7 @@ function getProSeasonsOptions() {
 function getNationalTeamCallUpChance() {
     const countryName = selectedCountry.name;
     const strength = getNationalTeamStrength(countryName); // 1, 3, 5
-    const avgAttr = getPlayerAverageAttribute(); // 1 to 10
+    const avgAttr = getPlayerWeightedAttributeScore(); // 1 to 10
     
     let baseChance = 10;
     if (strength === 1) {
@@ -4394,15 +4493,15 @@ function updateAgeDisplay() {
     const ageBox = document.getElementById("box-age");
     if (ageBox) {
         const valueEl = ageBox.querySelector(".box-value");
-        if (valueEl) {
-            valueEl.innerText = getTranslatedAgeValue(`${currentPlayerAge} anos`);
+        if (valueEl && typeof selectedAge !== 'undefined' && selectedAge) {
+            valueEl.innerText = getTranslatedAgeValue(selectedAge.name);
         }
     }
     const mAgeBox = document.getElementById("m-box-age");
     if (mAgeBox) {
         const mVal = mAgeBox.querySelector(".m-stat-val");
-        if (mVal) {
-            mVal.innerText = getTranslatedAgeValue(`${currentPlayerAge} anos`);
+        if (mVal && typeof selectedAge !== 'undefined' && selectedAge) {
+            mVal.innerText = getTranslatedAgeValue(selectedAge.name);
         }
     }
 }
@@ -4446,13 +4545,21 @@ function getWorldCupParticipationChance() {
 function getContinentalSelectionChance() {
     const countryName = selectedCountry.name;
     const strength = getNationalTeamStrength(countryName);
-    let baseChance = 10;
-    if (strength === 5) baseChance = 40;
-    else if (strength === 3) baseChance = 25;
+    let baseChance = 5; // Default/Weak
+    if (strength === 5) baseChance = 45; // Strong country
+    else if (strength === 3) baseChance = 20; // Medium country
     
-    const avgAttr = getPlayerAverageAttribute();
+    const avgAttr = getPlayerWeightedAttributeScore();
     const bonus = (avgAttr - 1) * 3; // Up to +27%
-    return Math.max(5, Math.min(95, Math.round(baseChance + bonus)));
+    
+    let chance = baseChance + bonus;
+    
+    // If the country is weak (strength === 1), cap the winning chance at 12%
+    if (strength === 1) {
+        chance = Math.min(12, chance);
+    }
+    
+    return Math.max(2, Math.min(95, Math.round(chance)));
 }
 
 function getWorldCupWinChance() {
@@ -4462,10 +4569,15 @@ function getWorldCupWinChance() {
     if (strength === 5) baseChance = 20;
     else if (strength === 3) baseChance = 8;
     
-    const avgAttr = getPlayerAverageAttribute();
+    const avgAttr = getPlayerWeightedAttributeScore();
     const bonus = (avgAttr - 1) * 2; // Up to +18%
     
     let chance = baseChance + bonus;
+    
+    // Boost chance of winning if player had more than 1 World Cup participation (+4% per extra appearance)
+    if (quantidadeCopasDisputadas > 1) {
+        chance += (quantidadeCopasDisputadas - 1) * 4;
+    }
     
     // Decrease chance significantly if NOT a strong European or South American country
     const strongEuroSouthAm = [
@@ -4474,15 +4586,17 @@ function getWorldCupWinChance() {
     ];
     
     if (!strongEuroSouthAm.includes(countryName)) {
-        // Limit non-traditional strong countries to a 2% max chance of winning the World Cup
-        chance = Math.min(2, chance * 0.10);
+        // Limit non-traditional strong countries to a 2% max chance of winning the World Cup, 
+        // but increase the cap slightly if they had multiple participations (e.g. up to 4% cap)
+        const cap = quantidadeCopasDisputadas > 1 ? 4 : 2;
+        chance = Math.min(cap, chance * 0.10);
     }
     
     return Math.max(1, Math.min(90, Math.round(chance)));
 }
 
 function getBallonDorChance() {
-    const avgAttr = getPlayerAverageAttribute();
+    const avgAttr = getPlayerWeightedAttributeScore();
     let baseChance = 1;
     if (avgAttr >= 9.0) baseChance = 75;
     else if (avgAttr >= 7.0) baseChance = 40;
@@ -4616,9 +4730,9 @@ function getGoalsOptions() {
     // 12% nerf and position-based multiplier applied to expected goals
     let expectedGoals = baseGoalsPerYear * goalsMultiplier * seasons * 0.88 * positionMultiplier;
     
-    // Attackers who never got called up to the national team score slightly fewer career goals (22% penalty)
-    if (["Centroavante", "Ponta Esquerda", "Ponta Direita"].includes(position) && !convocandoSelecao) {
-        expectedGoals *= 0.78;
+    // Nerfed more (35% penalty) for any position if never called up to the national team
+    if (!convocandoSelecao) {
+        expectedGoals *= 0.65;
     }
     
     if (position === "Goleiro") {
@@ -4676,13 +4790,9 @@ function getAssistsOptions() {
     // 12% nerf applied to expected assists
     let expectedAssists = baseAssistsPerYear * assistsMultiplier * seasons * 0.88;
     
-    // Attack and midfield players who never got called up to the national team distribute slightly fewer career assists (22% penalty)
-    const attackOrMidfield = [
-        "Centroavante", "Ponta Esquerda", "Ponta Direita", 
-        "Meia-Armador", "Meio-Campo", "Volante"
-    ];
-    if (attackOrMidfield.includes(position) && !convocandoSelecao) {
-        expectedAssists *= 0.78;
+    // Nerfed more (35% penalty) for any position if never called up to the national team
+    if (!convocandoSelecao) {
+        expectedAssists *= 0.65;
     }
     
     if (position === "Goleiro") {
@@ -5538,6 +5648,30 @@ function getTranslatedCountryDesc(countryName, lang) {
             ja: "マサイマラのサバンナでのサファリ、見事なリフトバレー、そして世界を席巻する陸上長距離ランナーで有名",
             zh: "以马赛马拉大草原的野生动物巡游、壮丽的裂谷以及称霸世界的长跑运动员而闻名"
         },
+        "Marrocos": {
+            en: "land of the Sahara Desert, historic medinas, and the Atlas Lions national team that made historic milestones in the World Cup",
+            es: "tierra del desierto del Sahara, medinas históricas y la selección de los Leones del Atlas que hizo historia en la Copa del Mundo",
+            ja: "サハラ砂漠、歴史的な旧市街、そしてワールドカップで歴史的な快挙を成し遂げたアトラスのライオンたち代表チームの土地",
+            zh: "撒哈拉沙漠的土地、历史悠久的麦地那老城，以及在世界杯赛场上创造历史神话的阿特拉斯雄狮国家队"
+        },
+        "Senegal": {
+            en: "land of Teranga, vibrant mbalax music, and a historic generation of extremely fast and physical football athletes",
+            es: "tierra de Teranga, la vibrante música mbalax y una generación histórica de atletas de fútbol extremadamente veloces y físicos",
+            ja: "テランガ（もてなしの心）、活気あるンバラックス音楽、そして極めて強靭で俊敏な選手たちによる歴史的黄金世代の地",
+            zh: "特兰加精神的土地、动感的姆巴拉克斯音乐，以及由极其强壮且速度飞快的球员组成的黄金一代国度"
+        },
+        "Argélia": {
+            en: "land of the desert warriors, rich Mediterranean cuisine, and football marked by exceptional technical skills and passion",
+            es: "tierra de los guerreros del desierto, rica cocina mediterránea y un fútbol caracterizado por una técnica excepcional y garra",
+            ja: "砂漠の戦士たち、豊かな地中海料理、そして卓越した技術力と凄まじい闘志を特徴とするサッカーの国",
+            zh: "沙漠勇士的土地、丰富的地中海美食，以及以出众技术和铁血拼劲著称的足球国度"
+        },
+        "Camarões": {
+            en: "the nation of the indomitable lions, home to dense equatorial rainforests and a very rich tradition of legendary strikers",
+            es: "la nación de los leones indomables, hogar de densas selvas ecuatoriales y una riquísima tradición de delanteros legendarios",
+            ja: "不屈のライオンたちの国であり、密集した赤道熱帯雨林と伝説的なストライカーによる極めて豊かな伝統を持つ地",
+            zh: "不屈雄狮的国度，拥有茂密的赤道雨林以及诞生过无数传奇前锋的极其深厚的足球传统"
+        },
         "Estados Unidos": {
             en: "a globally influential power, filled with iconic metropolises, colossal national parks, and a melting pot of global cultures",
             es: "una potencia de influencia global, repleta de metrópolis icónicas, enormes parques nacionales y una mezcla de culturas de todo el mundo",
@@ -6376,7 +6510,10 @@ function simulateLegendaryCareer() {
             wonContinental: true, continentalTitles: 1,
             wonIntercontinental: false, intercontinentalTitles: 0,
             wonWorldClubCup: false, worldClubCupTitles: 0,
-            improvedAttributes: true, numImproved: 2
+            improvedAttributes: true, numImproved: 2,
+            marketValue: "€5.2M",
+            startAge: 17,
+            endAge: 20
         },
         {
             team: { name: "Real Madrid" },
@@ -6387,7 +6524,10 @@ function simulateLegendaryCareer() {
             wonContinental: true, continentalTitles: 3,
             wonIntercontinental: true, intercontinentalTitles: 2,
             wonWorldClubCup: true, worldClubCupTitles: 2,
-            improvedAttributes: true, numImproved: 4
+            improvedAttributes: true, numImproved: 4,
+            marketValue: "€220M",
+            startAge: 20,
+            endAge: 28
         },
         {
             team: { name: "Milan" },
@@ -6398,7 +6538,10 @@ function simulateLegendaryCareer() {
             wonContinental: true, continentalTitles: 1,
             wonIntercontinental: false, intercontinentalTitles: 0,
             wonWorldClubCup: false, worldClubCupTitles: 0,
-            improvedAttributes: true, numImproved: 1
+            improvedAttributes: true, numImproved: 1,
+            marketValue: "€115M",
+            startAge: 28,
+            endAge: 33
         },
         {
             team: { name: "Boca Juniors" },
@@ -6409,7 +6552,10 @@ function simulateLegendaryCareer() {
             wonContinental: false, continentalTitles: 0,
             wonIntercontinental: false, intercontinentalTitles: 0,
             wonWorldClubCup: false, worldClubCupTitles: 0,
-            improvedAttributes: false, numImproved: 0
+            improvedAttributes: false, numImproved: 0,
+            marketValue: "€18M",
+            startAge: 33,
+            endAge: 35
         }
     ];
     
@@ -6428,6 +6574,16 @@ function simulateLegendaryCareer() {
     selectedCareerCleanSheets = 0;
     
     playerCardName = "TAVVU99";
+    
+    peakMarketValueRaw = 220000000;
+    peakMarketValueFormatted = "€220M";
+    
+    selectedRetirementReason = { 
+        name: "Escolha Própria 🚶‍♂️", 
+        desc: "escolha própria de sair por cima, querendo aproveitar o tempo livre com a família enquanto ainda está no auge físico", 
+        color: "#143d25" 
+    };
+    currentPlayerAge = 35;
     
     showFinalJourney();
 }
